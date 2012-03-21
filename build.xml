@@ -1,0 +1,81 @@
+<project name="Frodo" basedir="." default="compile">
+	
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
+	  <classpath>
+	    <pathelement location="${basedir}/third-party/ant-contrib-1.0b3.jar"/>
+	  </classpath>
+	</taskdef>
+
+	<taskdef resource="com/googlecode/jslint4java/antlib.xml">
+		<classpath>
+	    <pathelement location="${basedir}/third-party/jslint4java-2.0.2.jar"/>
+	  </classpath>
+	</taskdef>
+	
+	<target name="compile">
+		
+		<echo>Compiling frodo.js</echo>
+
+		<concat destfile="build/client/frodo.js" outputencoding="UTF-8">
+			<filelist dir="${basedir}/third-party/" files="jquery-1.7.1.js"/>
+			<filelist dir="${basedir}/src" files="_start.js"/>
+			<filelist dir="${basedir}/src/base/" files="Class.js"/>
+			<fileset dir="${basedir}/src/util/">
+				 <include name="**/*.js"/>	
+			</fileset>
+			<filelist dir="${basedir}/src/base/" files="BaseClass.js"/>
+			<filelist dir="${basedir}/src/event/" files="EventDispatcher.js,ClickHandler.js"/>
+			<filelist dir="${basedir}/src/service/" files="Service.js"/>
+			<filelist dir="${basedir}/src/factory/" files="Factory.js,SingletonFactory.js,ServiceFactory.js"/>
+			<filelist dir="${basedir}/src/event/command/" files="Command.js"/>
+			<filelist dir="${basedir}/src/" files="Framework.js"/>
+			<filelist dir="${basedir}/src/cache/" files="Cache.js,CookieCache.js,LocalStorageCache.js,SessionStorageCache.js,TemporaryCache.js,PersistentCache.js"/>
+			<filelist dir="${basedir}/src/data/" files="VO.js,SerializableVO.js,HashTable.js,Model.js,ArrayCollection.js,PersistentArrayCollection.js,Processor.js"/>
+			<filelist dir="${basedir}/src/view/" files="ConfigVO.js,DisplayObject.js,Component.js,ItemRenderer.js,ListContainer.js"/>
+			<filelist dir="${basedir}/src" files="_end.js"/>
+		</concat>
+		
+	</target>
+	
+	<target name="compile-node">
+			
+		<echo>Compiling frodo.js</echo>
+
+		<concat destfile="build/server/frodo.js" outputencoding="UTF-8">
+			<filelist dir="${basedir}/src/base/" files="Class.js"/>
+			<fileset dir="${basedir}/src/util/">
+				 <include name="**/*.js"/>	
+				 <exclude name="**/Browser.js"/>
+			</fileset>
+			<filelist dir="${basedir}/src/base/" files="BaseClass.js"/>
+			<filelist dir="${basedir}/src/event/" files="EventDispatcher.js,Event.js"/>
+			<filelist dir="${basedir}/src/service/" files="Service.js"/>
+			<filelist dir="${basedir}/src/factory/" files="Factory.js,SingletonFactory.js,ServiceFactory.js"/>
+			<filelist dir="${basedir}/src/event/command/" files="Command.js"/>
+			<filelist dir="${basedir}/src/cache/" files="Cache.js"/>
+			<filelist dir="${basedir}/src/data/" files="VO.js,SerializableVO.js,HashTable.js,Model.js,ArrayCollection.js,PersistentArrayCollection.js,Processor.js"/>
+			<filelist dir="${basedir}/src/" files="_node.js"/>
+		</concat>
+	
+	 <copy file="${basedir}/src/package.json" todir="build/server/"/>
+	<copy file="build/server/frodo.js" todir="/users/matt/sites/misty/node_modules/frodo/"/>
+		
+	</target>
+	
+	<target name="release">
+		<echo>Creating compressed build...</echo>
+			<shellscript shell="bash" dir=".">
+				chmod 755 third-party/yuicompressor-2.4.2.jar
+				//java -jar third-party/yuicompressor-2.4.2.jar build/frodo.js --nomunge --charset UTF-8 --type js -o build/frodo.min.js
+			</shellscript>
+			<!--
+			<echo>Running JS-lint...</echo>
+			<jslint options="undef,white">
+			    <formatter type="plain" />
+			    <fileset dir="build/" includes="frodo.js" excludes="frodo.min.js" />
+			  </jslint>-->
+	</target>
+	
+</project>
+
+	

@@ -1,0 +1,30 @@
+{
+  "name": "frodo",
+  "description": "Classical Javascript Inheritence Event Framework",
+  "homepage": "http://github.com/bionicbaby/frodo",
+  "keywords": [
+    "util",
+    "functional",
+    "server",
+    "client",
+    "browser"
+  ],
+  "author": {
+    "name": "Matthew Turner",
+    "email": "mturner85@gmail.com.com"
+  },
+  "main": "frodo.js",
+  "version": "0.0.1",
+  "_id": "frodo@0.0.1",
+  "dependencies": {},
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  },
+  "_engineSupported": true,
+  "_npmVersion": "1.1.9",
+  "_nodeVersion": "v0.6.13",
+  "_defaultsLoaded": true,
+  "_from": "frodo"
+}

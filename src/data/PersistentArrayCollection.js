@@ -66,7 +66,18 @@ var PersistentArrayCollection = ArrayCollection.extend({
 						}
 						data.push(newObj);
 						
+						
 					}
+					
+					// render reference
+					if ( cacheData.__renderClass__ !== undefined ) {
+						try {
+						newObj[__renderClass__] = eval(cacheData.__renderClass_);
+						} catch (exeption) {
+							thid.error("Couldn't restore the renderClass as it was undefined: " + cacheData.__renderClass__);
+						}
+					}
+					
 				} catch ( e ) {
 					this.error("Failed to restore cacheData with typed objects", item, e );
 					data.push( item );

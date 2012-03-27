@@ -46,7 +46,6 @@
 				}
 			}
 
-			console.log( this.name );
 			// create logger for the individual class.. each class gets its own to make life easier...
 			this._log = new Log(this.instanceId+":"+this.name);
 		},

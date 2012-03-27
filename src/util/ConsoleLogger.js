@@ -11,19 +11,39 @@ var ConsoleLogger = Class.extend({
 	},
 	
 	debug: function () {
-		console.log( this.prefix, arguments);
+		var args = [];
+		args[0] = "--" + " " + this.prefix + " -- ";
+		for ( var i = 0 ; i < arguments.length ; i++ ) {
+			args[i+1] = arguments[i];
+		}
+		console.log.apply( console, args);
 	},
 	
 	error: function () {
-		console.error( this.prefix, arguments);
+		var args = [];
+		args[0] = "--" + " " + this.prefix + " -- ";
+		for ( var i = 0 ; i < arguments.length ; i++ ) {
+			args[i+1] = arguments[i];
+		}
+		console.error.apply( console, args);
 	},
 	
 	info: function () {
-		console.info( this.prefix, arguments);
+		var args = [];
+		args[0] = "--" + " " + this.prefix + " -- ";
+		for ( var i = 0 ; i < arguments.length ; i++ ) {
+			args[i+1] = arguments[i];
+		}
+		console.info.apply( console, args);
 	},
 	
 	fatal: function () {
-		console.error( " !! FATAL !! " + this.prefix, arguments);
+		var args = [];
+		args[0] = "--" + " " + this.prefix + " -- ";
+		for ( var i = 0 ; i < arguments.length ; i++ ) {
+			args[i+1] = arguments[i];
+		}
+		console.error.apply( console, args);
 	}
 	
 });

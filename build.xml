@@ -35,6 +35,7 @@
 			<filelist dir="${basedir}/src" files="_end.js"/>
 		</concat>
 		
+		 <copy file="${basedir}/build/client/frodo.js" todir="/Users/matt/sites/SocialBit/toolbar/lib/frodo/"/>		
 	</target>
 	
 	<target name="compile-node">

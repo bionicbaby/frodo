@@ -43,19 +43,19 @@ var HashTable = EventDispatcher.extend({
 	// TODO: adjust to use addItemAt
 	set: function( key, value ) {
 		
-		this.debug("hashTable.set",key,value)
+		//this.debug("hashTable.set",key,value)
 		
 		// get our fancy pants on and improve performance
 		var array = this.array;
 		var index = this.index;
 		var hashKey = this.getHashKey(key);
 		
-		this.debug("checkin on key",this.get( key ));
+		//this.debug("checkin on key",this.get( key ));
 		
 		// handle update or add
 		if ( this.get( key ) ) {
 			
-			this.debug("key exists updating...",value);
+			//this.debug("key exists updating...",value);
 			
 			// update array and maps objects
 			// because we don't loop here we use the index table instead we now have 
@@ -66,7 +66,7 @@ var HashTable = EventDispatcher.extend({
 			this._dispatchChange(this.UPDATE, data );
 		} else {
 			
-			this.debug("key does not existing, adding item",value);
+			//this.debug("key does not existing, adding item",value);
 			// add to array and maps objects
 			array.push(value); // add the value to the array and set the position into the index
 			index[hashKey] = array.length - 1; // associate hashed key to the index of the array
@@ -86,7 +86,7 @@ var HashTable = EventDispatcher.extend({
 		if ( this.data[ this.getHashKey(key) ] !== undefined ) {
 			return this.data[ this.getHashKey(key) ];
 		} else {
-			this.debug("key does not exist... returning null");
+			//this.debug("key does not exist... returning null");
 			return null;
 		}
 	},

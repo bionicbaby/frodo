@@ -7,6 +7,7 @@ module.exports.Model = Model;
 module.exports.VO = VO;
 module.exports.SerializableVO = SerializableVO;
 module.exports.Event = Event;
+module.exports.Proxy = Proxy;
 module.exports.EventDispatcher = EventDispatcher;
 module.exports.Command = Command;
 module.exports.Factory = Factory;

@@ -23,7 +23,7 @@ var Log = Class.extend({
 	 * @description log a basic message
 	 */
 	debug: function () {
-		this._logger.debug.apply(this._logger.debug, arguments);
+		this._logger.debug.apply(this._logger, arguments);
 		//this._logger.debug(arguments);
 	},
 	

@@ -4,15 +4,20 @@ var PersistentArrayCollection = ArrayCollection.extend({
 	//debugEnabled:true,
 	cacheName:"",
 	cache:null,
+	type: null,
 	
-	init:function( d, cache, cacheName ) {
+	init:function( d, cache, cacheName, type ) {
 		this.cache = cache;
+		if ( type !== undefined ) {
+			this.type = type;
+		}
 		if (cache !== null) {
 			this.cacheName = ( cacheName !== null && cacheName !== undefined ) ? cacheName : cache.cacheName;
 			this._super(d);
 			// call inside a timeout so people have an opportunity to bind to the reset
-			var t = this;
-			setTimeout( function() { t.restoreFromCache()}, 5 );
+			//var t = this;
+			//setTimeout( function() { t.restoreFromCache()}, 1000 );
+			this.cache.addEventListener( this.cache.CACHE_RESTORED, this.restoreFromCache, this );
 		} else {
 			this.error("Alert: Persistent Cache created without proper cache data:", arguments);
 		}
@@ -25,17 +30,14 @@ var PersistentArrayCollection = ArrayCollection.extend({
 	},
 	
 	updateCache:function() {
-		console.log("Updating ArrayCollectionCache",this.getLength());
+		console.log("Updating ArrayCollectionCache",this.data);
 		this.cache.setItem(this.cacheName, this);
 	},
 	
 	restoreFromCache:function() {
-		
-		console.log("Restoring from cache");
 		var useSimpleData = false;
 		var cacheData = this.cache.getItem(this.cacheName);
-		
-		//console.log("restoring from cache",cacheData);
+		console.log("Restoring from cache",cacheData);
 		
 		// if we have cachedData... 
 		if (cacheData !== null && cacheData !== undefined) {
@@ -44,18 +46,23 @@ var PersistentArrayCollection = ArrayCollection.extend({
 			var data = [];
 			for ( var i = 0; i < cacheData.length; i++ ) {
 				try {
-				var item = JSON.parse(cacheData[i]);
+					
+					if ( cacheData[i].__type__ === undefined ){ 
+						var item = JSON.parse(cacheData[i]);
+					} else {
+						var item = cacheData[i];
+					}
+				
 					if ( item["__type__"] !== undefined ) {
-						var type = eval(item["__type__"]);
+						// if the type is not provided for the AC then try to evaluate it using the __type__ property
+						if ( this.type === null ) {
+							var type = eval(item["__type__"]);
+						} else {
+							var type = this.type;
+						}
 						var newObj = new type();
-						//TODO: somehow, this screws up the scope
-						// somewhere down the line... no idea how or where though...
-						//newObj.setValues(item);
-						
 						for(var a in item) {
 							newObj[a] = item[a];
-							//same as setValues.. this jacks up scope in weird ways..
-							//newObj.set(a, item[a]);
 						}
 						data.push(newObj);
 						
@@ -70,6 +77,8 @@ var PersistentArrayCollection = ArrayCollection.extend({
 			// when we have no cacheData we should just be ok with it and setup data as a blank array	
 			data = [];
 		}
+		
+		console.log("about to reset the AC data",data);
 			
 		this.setCollection(data);
 

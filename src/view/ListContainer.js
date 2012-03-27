@@ -80,7 +80,6 @@ var ListContainer = Component.extend({
 		this.$contentView.addClass(this._contentClass);
 		this.setSize(this.height, this.width);
 		
-		console.log("drawing list container should we add paging controls?",this.type,this.pagingSelectedPage);
 		if ( this.type == this.TYPE_PAGING ) {
 			this.drawPagingControls();
 		}
@@ -93,7 +92,6 @@ var ListContainer = Component.extend({
 	},
 
 	drawPagingControls: function () {
-		console.log("drawing paging controls");
 		
 		this.$contentView.append("<div class='winston-listcontainer-prev winston-listcontainer-pagingcontrol'>"+this.pagingPrevLabel+"</div>");
 		this.pagingPrevButton = this.$view.find(".winston-listcontainer-prev");
@@ -101,8 +99,6 @@ var ListContainer = Component.extend({
 		this.$contentView.append("<div class='winston-listcontainer-next winston-listcontainer-pagingcontrol'>"+this.pagingNextLabel+"</div>");
 		this.pagingNextButton = this.$view.find(".winston-listcontainer-next");
 		
-		console.log("here?");
-		console.log("paging buttons created", this.pagingPrevButton, this.pagingNextButton );
 		
 		new ClickHandler(this, this.pagingPrevButton, this._onPagePrev );
 		new ClickHandler(this, this.pagingNextButton, this._onPageNext );
@@ -118,15 +114,12 @@ var ListContainer = Component.extend({
 	},
 	
 	focusPage: function () {
-		console.log("!!!!!!!!!!! focusing on page", this.pagingSelectedPage);
 		// TODO: this is being done for a single item right now, we need to go back and make it work for 
 		// sets so we can animate the entire thing as a single container.
 		var selection = this.getPagingRange();
 		// hide everything first
 		this.hideAll();
-		console.log('trying to show between ', selection.start, selection.end );
 		for ( var i = selection.start ; i < selection.end ; i++ ) {
-			console.log("showing item at pos " + i);
 			// looping over the selection items and displaying them
 			this.getItemAt(i).show();
 		}
@@ -175,9 +168,7 @@ var ListContainer = Component.extend({
 	},
 	
 	hideAll: function() {
-		console.log("hide all?");
 		for ( var i = 0 ; i < this._items.length ; i++ ) {
-			console.log("hiding item at pos " + i );
 			// looping over the selection items and displaying them
 			this.getItemAt(i).hide();
 		}
@@ -191,7 +182,6 @@ var ListContainer = Component.extend({
 	//TODO: appendItem takes a renderer but
 	// we are not accounting for it here.
 	redraw:function() {
-		console.log("redrawing a list container");
 		
 		if( (this._items.length === this.dataProvider.getLength()) && this._items.length > 0) {
 			//this.debug("length is the same.. recycle??", "dp: "+this.dataProvider.getLength(), "items: "+this._items.length);
@@ -301,7 +291,6 @@ var ListContainer = Component.extend({
 			itemWidget.addEventListener(itemWidget.REQUEST_REMOVE, this.onRequestRemove, this);
 			this._items.push(itemWidget);
 		} catch ( e ) { 
-			console.log("Error appending item in ListContainer:", this, e, item, renderer );
 		}
 		
 		
@@ -410,7 +399,6 @@ var ListContainer = Component.extend({
 	
 	/** Event Handlers **/
 	_onDataChanged: function(event){
-		console.log("data changed, list container updating");
 		if(this.showEmpty && this.dataProvider.getLength() == 0) {
 			this.setLoading(true);
 			return;
@@ -454,7 +442,6 @@ var ListContainer = Component.extend({
 	
 	/** override in subclasses as necessary **/
 	onAdd:function(item, index) {
-		console.log("ADDING ITEM!!!",item,index);
 		var renderClass = null;
 		// if there is a renderClass property on the VO that isnt null we should use it to render
 		if ( item.renderClass !== undefined && item.renderClass !== null ) {

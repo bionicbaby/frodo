@@ -1,9 +1,13 @@
 
-	var Cache = BaseClass.extend({
+	var Cache = EventDispatcher.extend({
+		
 		name:"Cache",
 		localstorage: false,
 		sessionstorage: false,
-		CLEAR: "winston.core.clearCache",
+		
+		CLEAR: "cache.clear",
+		CACHE_RESTORED: "cache.restored",
+		
 		_local:{},//local copy of our cache.
 		
 		init: function (cacheName,timeout) {

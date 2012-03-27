@@ -9468,19 +9468,39 @@ var ConsoleLogger = Class.extend({
 	},
 	
 	debug: function () {
-		console.log( this.prefix, arguments);
+		var args = [];
+		args[0] = "--" + " " + this.prefix + " -- ";
+		for ( var i = 0 ; i < arguments.length ; i++ ) {
+			args[i+1] = arguments[i];
+		}
+		console.log.apply( console, args);
 	},
 	
 	error: function () {
-		console.error( this.prefix, arguments);
+		var args = [];
+		args[0] = "--" + " " + this.prefix + " -- ";
+		for ( var i = 0 ; i < arguments.length ; i++ ) {
+			args[i+1] = arguments[i];
+		}
+		console.error.apply( console, args);
 	},
 	
 	info: function () {
-		console.info( this.prefix, arguments);
+		var args = [];
+		args[0] = "--" + " " + this.prefix + " -- ";
+		for ( var i = 0 ; i < arguments.length ; i++ ) {
+			args[i+1] = arguments[i];
+		}
+		console.info.apply( console, args);
 	},
 	
 	fatal: function () {
-		console.error( " !! FATAL !! " + this.prefix, arguments);
+		var args = [];
+		args[0] = "--" + " " + this.prefix + " -- ";
+		for ( var i = 0 ; i < arguments.length ; i++ ) {
+			args[i+1] = arguments[i];
+		}
+		console.error.apply( console, args);
 	}
 	
 });/**
@@ -9508,7 +9528,7 @@ var Log = Class.extend({
 	 * @description log a basic message
 	 */
 	debug: function () {
-		this._logger.debug.apply(this._logger.debug, arguments);
+		this._logger.debug.apply(this._logger, arguments);
 		//this._logger.debug(arguments);
 	},
 	
@@ -9589,7 +9609,6 @@ Log.prototype.FATAL = "FATAL";
 				}
 			}
 
-			console.log( this.name );
 			// create logger for the individual class.. each class gets its own to make life easier...
 			this._log = new Log(this.instanceId+":"+this.name);
 		},
@@ -10074,11 +10093,15 @@ var Framework = EventDispatcher.extend({
 	
 });
 
-	var Cache = BaseClass.extend({
+	var Cache = EventDispatcher.extend({
+		
 		name:"Cache",
 		localstorage: false,
 		sessionstorage: false,
-		CLEAR: "winston.core.clearCache",
+		
+		CLEAR: "cache.clear",
+		CACHE_RESTORED: "cache.restored",
+		
 		_local:{},//local copy of our cache.
 		
 		init: function (cacheName,timeout) {
@@ -10175,7 +10198,7 @@ var Framework = EventDispatcher.extend({
 			}
 			
 	        var expires = "expires="+this.date.toGMTString();
-			document.cookie = key+"="+value+";"+expires+"; path=/"; // we set a userplane path so these cookies are not sent to any server anywhere
+			document.cookie = key+"="+value+";"+expires+"; path=/"; // we set a path so these cookies are not sent to any server anywhere
 			
 		},
 			
@@ -10191,7 +10214,7 @@ var Framework = EventDispatcher.extend({
 			var date = new Date();
 			date.setTime(date.getTime()-1);
 			var expires = "; expires="+date.toGMTString();
-			document.cookie = key+"="+''+expires+"; path=/"; // we set a userplane path so these cookies are not sent to any server anywhere
+			document.cookie = key+"="+''+expires+"; path=/"; // we set a path so these cookies are not sent to any server anywhere
 		},
 		
 		
@@ -10325,21 +10348,7 @@ var Framework = EventDispatcher.extend({
 			this.cacheName = hash(cacheName); // hash the cache name to keep it safe for the cache mechanism
 			this.collection = window.sessionStorage;
 			this.iterator = new SessionStorageIterator(this.collection);
-			
-			// if a changeCallback was provided we can bind the results here so that when a chance occurs we call it
-			//if ( typeof onChangeCallback != "undefined" && onChangeCallback != null ) {
-			//	this.onChangeCallback = onChangeCallback;
-				// register callback with the local storage cache
-			//} else {
-				//this.debug("setting up callback for data change to base handler");
-				this.onChangeCallback = function (e) { /*dont do anything by default*/ };
-			//}
-			
-			/*userplane.$(window).bind( "onstorage", userplane.$.proxy(this.onChangeCallback, this) );
-			userplane.$(window).bind( "storage", userplane.$.proxy(this.onChangeCallback, this) );
-			if (window.addEventListener) { window.addEventListener("storage", handle_storage, false); } else { window.attachEvent("onstorage", handle_storage); };
-			function handle_storage(e) { if (!e) { e = window.event; } }
-			*/
+			this.onChangeCallback = function (e) { /*dont do anything by default*/ };
 		},
 	
 		getItem: function(key) {
@@ -10413,22 +10422,24 @@ var Framework = EventDispatcher.extend({
 
 	var TemporaryCache = Cache.extend({
 	
+		CLEAR_CACHE: "clear.cache",
+		
 		init: function (cacheName) {
 			
 			// make cache site specific
-			this.cacheName = this.config.getCleanDomainCode() + "_" + userplane.config.sessionGUID + "_" + cacheName;
+			this.cacheName = cacheName;
 			
 			// cleanup classes inherited properties
 			delete this.collection;
 			
-			if (userplane.sessionstorage){
+			if ( sessionStorage !== undefined ){
 				// Take advantage of local storage that is persistent
 				// between tabs on the same site and can store MBs of data
 				this.wrapper = new SessionStorageCache(this.cacheName);
 				//this.debug("TemporaryCache using SessionStorageCache");
 			
 				// register this cache to respond to the global clear cache command, now all persistent caches will respond to this command.
-				sdk.addEventListener( UserplaneEvents.CLEAR_CACHE, this.clear, this );
+				sdk.addEventListener( this.CLEAR_CACHE, this.clear, this );
 				
 			} else {
 			  // resort to a flash cache
@@ -10687,19 +10698,19 @@ var HashTable = EventDispatcher.extend({
 	// TODO: adjust to use addItemAt
 	set: function( key, value ) {
 		
-		this.debug("hashTable.set",key,value)
+		//this.debug("hashTable.set",key,value)
 		
 		// get our fancy pants on and improve performance
 		var array = this.array;
 		var index = this.index;
 		var hashKey = this.getHashKey(key);
 		
-		this.debug("checkin on key",this.get( key ));
+		//this.debug("checkin on key",this.get( key ));
 		
 		// handle update or add
 		if ( this.get( key ) ) {
 			
-			this.debug("key exists updating...",value);
+			//this.debug("key exists updating...",value);
 			
 			// update array and maps objects
 			// because we don't loop here we use the index table instead we now have 
@@ -10710,7 +10721,7 @@ var HashTable = EventDispatcher.extend({
 			this._dispatchChange(this.UPDATE, data );
 		} else {
 			
-			this.debug("key does not existing, adding item",value);
+			//this.debug("key does not existing, adding item",value);
 			// add to array and maps objects
 			array.push(value); // add the value to the array and set the position into the index
 			index[hashKey] = array.length - 1; // associate hashed key to the index of the array
@@ -10730,7 +10741,7 @@ var HashTable = EventDispatcher.extend({
 		if ( this.data[ this.getHashKey(key) ] !== undefined ) {
 			return this.data[ this.getHashKey(key) ];
 		} else {
-			this.debug("key does not exist... returning null");
+			//this.debug("key does not exist... returning null");
 			return null;
 		}
 	},
@@ -11080,15 +11091,20 @@ var PersistentArrayCollection = ArrayCollection.extend({
 	//debugEnabled:true,
 	cacheName:"",
 	cache:null,
+	type: null,
 	
-	init:function( d, cache, cacheName ) {
+	init:function( d, cache, cacheName, type ) {
 		this.cache = cache;
+		if ( type !== undefined ) {
+			this.type = type;
+		}
 		if (cache !== null) {
 			this.cacheName = ( cacheName !== null && cacheName !== undefined ) ? cacheName : cache.cacheName;
 			this._super(d);
 			// call inside a timeout so people have an opportunity to bind to the reset
-			var t = this;
-			setTimeout( function() { t.restoreFromCache()}, 5 );
+			//var t = this;
+			//setTimeout( function() { t.restoreFromCache()}, 1000 );
+			this.cache.addEventListener( this.cache.CACHE_RESTORED, this.restoreFromCache, this );
 		} else {
 			this.error("Alert: Persistent Cache created without proper cache data:", arguments);
 		}
@@ -11101,17 +11117,14 @@ var PersistentArrayCollection = ArrayCollection.extend({
 	},
 	
 	updateCache:function() {
-		console.log("Updating ArrayCollectionCache",this.getLength());
+		console.log("Updating ArrayCollectionCache",this.data);
 		this.cache.setItem(this.cacheName, this);
 	},
 	
 	restoreFromCache:function() {
-		
-		console.log("Restoring from cache");
 		var useSimpleData = false;
 		var cacheData = this.cache.getItem(this.cacheName);
-		
-		//console.log("restoring from cache",cacheData);
+		console.log("Restoring from cache",cacheData);
 		
 		// if we have cachedData... 
 		if (cacheData !== null && cacheData !== undefined) {
@@ -11120,18 +11133,23 @@ var PersistentArrayCollection = ArrayCollection.extend({
 			var data = [];
 			for ( var i = 0; i < cacheData.length; i++ ) {
 				try {
-				var item = JSON.parse(cacheData[i]);
+					
+					if ( cacheData[i].__type__ === undefined ){ 
+						var item = JSON.parse(cacheData[i]);
+					} else {
+						var item = cacheData[i];
+					}
+				
 					if ( item["__type__"] !== undefined ) {
-						var type = eval(item["__type__"]);
+						// if the type is not provided for the AC then try to evaluate it using the __type__ property
+						if ( this.type === null ) {
+							var type = eval(item["__type__"]);
+						} else {
+							var type = this.type;
+						}
 						var newObj = new type();
-						//TODO: somehow, this screws up the scope
-						// somewhere down the line... no idea how or where though...
-						//newObj.setValues(item);
-						
 						for(var a in item) {
 							newObj[a] = item[a];
-							//same as setValues.. this jacks up scope in weird ways..
-							//newObj.set(a, item[a]);
 						}
 						data.push(newObj);
 						
@@ -11146,6 +11164,8 @@ var PersistentArrayCollection = ArrayCollection.extend({
 			// when we have no cacheData we should just be ok with it and setup data as a blank array	
 			data = [];
 		}
+		
+		console.log("about to reset the AC data",data);
 			
 		this.setCollection(data);
 
@@ -12029,7 +12049,6 @@ var ListContainer = Component.extend({
 		this.$contentView.addClass(this._contentClass);
 		this.setSize(this.height, this.width);
 		
-		console.log("drawing list container should we add paging controls?",this.type,this.pagingSelectedPage);
 		if ( this.type == this.TYPE_PAGING ) {
 			this.drawPagingControls();
 		}
@@ -12042,7 +12061,6 @@ var ListContainer = Component.extend({
 	},
 
 	drawPagingControls: function () {
-		console.log("drawing paging controls");
 		
 		this.$contentView.append("<div class='winston-listcontainer-prev winston-listcontainer-pagingcontrol'>"+this.pagingPrevLabel+"</div>");
 		this.pagingPrevButton = this.$view.find(".winston-listcontainer-prev");
@@ -12050,8 +12068,6 @@ var ListContainer = Component.extend({
 		this.$contentView.append("<div class='winston-listcontainer-next winston-listcontainer-pagingcontrol'>"+this.pagingNextLabel+"</div>");
 		this.pagingNextButton = this.$view.find(".winston-listcontainer-next");
 		
-		console.log("here?");
-		console.log("paging buttons created", this.pagingPrevButton, this.pagingNextButton );
 		
 		new ClickHandler(this, this.pagingPrevButton, this._onPagePrev );
 		new ClickHandler(this, this.pagingNextButton, this._onPageNext );
@@ -12067,15 +12083,12 @@ var ListContainer = Component.extend({
 	},
 	
 	focusPage: function () {
-		console.log("!!!!!!!!!!! focusing on page", this.pagingSelectedPage);
 		// TODO: this is being done for a single item right now, we need to go back and make it work for 
 		// sets so we can animate the entire thing as a single container.
 		var selection = this.getPagingRange();
 		// hide everything first
 		this.hideAll();
-		console.log('trying to show between ', selection.start, selection.end );
 		for ( var i = selection.start ; i < selection.end ; i++ ) {
-			console.log("showing item at pos " + i);
 			// looping over the selection items and displaying them
 			this.getItemAt(i).show();
 		}
@@ -12124,9 +12137,7 @@ var ListContainer = Component.extend({
 	},
 	
 	hideAll: function() {
-		console.log("hide all?");
 		for ( var i = 0 ; i < this._items.length ; i++ ) {
-			console.log("hiding item at pos " + i );
 			// looping over the selection items and displaying them
 			this.getItemAt(i).hide();
 		}
@@ -12140,7 +12151,6 @@ var ListContainer = Component.extend({
 	//TODO: appendItem takes a renderer but
 	// we are not accounting for it here.
 	redraw:function() {
-		console.log("redrawing a list container");
 		
 		if( (this._items.length === this.dataProvider.getLength()) && this._items.length > 0) {
 			//this.debug("length is the same.. recycle??", "dp: "+this.dataProvider.getLength(), "items: "+this._items.length);
@@ -12250,7 +12260,6 @@ var ListContainer = Component.extend({
 			itemWidget.addEventListener(itemWidget.REQUEST_REMOVE, this.onRequestRemove, this);
 			this._items.push(itemWidget);
 		} catch ( e ) { 
-			console.log("Error appending item in ListContainer:", this, e, item, renderer );
 		}
 		
 		
@@ -12359,7 +12368,6 @@ var ListContainer = Component.extend({
 	
 	/** Event Handlers **/
 	_onDataChanged: function(event){
-		console.log("data changed, list container updating");
 		if(this.showEmpty && this.dataProvider.getLength() == 0) {
 			this.setLoading(true);
 			return;
@@ -12403,7 +12411,6 @@ var ListContainer = Component.extend({
 	
 	/** override in subclasses as necessary **/
 	onAdd:function(item, index) {
-		console.log("ADDING ITEM!!!",item,index);
 		var renderClass = null;
 		// if there is a renderClass property on the VO that isnt null we should use it to render
 		if ( item.renderClass !== undefined && item.renderClass !== null ) {

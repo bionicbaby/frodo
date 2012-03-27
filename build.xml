@@ -48,17 +48,17 @@
 				 <exclude name="**/Browser.js"/>
 			</fileset>
 			<filelist dir="${basedir}/src/base/" files="BaseClass.js"/>
-			<filelist dir="${basedir}/src/event/" files="EventDispatcher.js,Event.js"/>
+			<filelist dir="${basedir}/src/event/" files="EventDispatcher.js,Event.js,Proxy.js"/>
 			<filelist dir="${basedir}/src/service/" files="Service.js"/>
 			<filelist dir="${basedir}/src/factory/" files="Factory.js,SingletonFactory.js,ServiceFactory.js"/>
 			<filelist dir="${basedir}/src/event/command/" files="Command.js"/>
 			<filelist dir="${basedir}/src/cache/" files="Cache.js"/>
-			<filelist dir="${basedir}/src/data/" files="VO.js,SerializableVO.js,HashTable.js,Model.js,ArrayCollection.js,PersistentArrayCollection.js,Processor.js"/>
+			<filelist dir="${basedir}/src/data/" files="VO.js,SerializableVO.js,HashTable.js,Model.js,ArrayCollection.js,PersistentArrayCollection.js,Processor.js,Iterator.js"/>
 			<filelist dir="${basedir}/src/" files="_node.js"/>
 		</concat>
 	
 	 <copy file="${basedir}/src/package.json" todir="build/server/"/>
-	<copy file="build/server/frodo.js" todir="/users/matt/sites/misty/node_modules/frodo/"/>
+	 <copy file="build/server/frodo.js" todir="/kitchen/deploy/Mist/node_modules/frodo/"/>
 		
 	</target>
 	

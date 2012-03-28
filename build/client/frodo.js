@@ -10968,9 +10968,7 @@ var ArrayCollection = EventDispatcher.extend({
 	},
 	
 	addItemAt:function(item, index) {
-		var b = this.data.slice(index, this.data.length);
-		this.data.push(item);
-		this.data.concat(b);
+		this.data.splice(index,0,item);
 		this._dispatchChange(this.ADD, item, index);
 	},
 	

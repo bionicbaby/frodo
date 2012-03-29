@@ -93,15 +93,17 @@ var ListContainer = Component.extend({
 
 	drawPagingControls: function () {
 		
-		this.$contentView.append("<div class='winston-listcontainer-prev winston-listcontainer-pagingcontrol'>"+this.pagingPrevLabel+"</div>");
-		this.pagingPrevButton = this.$view.find(".winston-listcontainer-prev");
+		if(this.pagingPrevLabel != null && this.pagingPrevLabel.length > 0) {
+			this.$contentView.append("<div class='winston-listcontainer-prev winston-listcontainer-pagingcontrol'>"+this.pagingPrevLabel+"</div>");
+			this.pagingPrevButton = this.$view.find(".winston-listcontainer-prev");
+			new ClickHandler(this, this.pagingPrevButton, this._onPagePrev );
+		}
 		
-		this.$contentView.append("<div class='winston-listcontainer-next winston-listcontainer-pagingcontrol'>"+this.pagingNextLabel+"</div>");
-		this.pagingNextButton = this.$view.find(".winston-listcontainer-next");
-		
-		
-		new ClickHandler(this, this.pagingPrevButton, this._onPagePrev );
-		new ClickHandler(this, this.pagingNextButton, this._onPageNext );
+		if(this.pagingNextLabel != null && this.pagingNextLabel.length > 0) {
+			this.$contentView.append("<div class='winston-listcontainer-next winston-listcontainer-pagingcontrol'>"+this.pagingNextLabel+"</div>");
+			this.pagingNextButton = this.$view.find(".winston-listcontainer-next");
+			new ClickHandler(this, this.pagingNextButton, this._onPageNext );
+		}
 		
 		// calculate max pages
 		this.pagingMaxPages = Math.ceil(this.dataProvider.getLength() / this.pagingItemsPer);
@@ -141,16 +143,20 @@ var ListContainer = Component.extend({
 	
 	updatePageButtonVisibility: function() {
 	
-		if ( this.pagingSelectedPage > 1 ) {
-			this.pagingPrevButton.show();
-		} else {
-			this.pagingPrevButton.hide();
+		if( this.pagingPrevButton != null ) {
+			if ( this.pagingSelectedPage > 1 ) {
+				this.pagingPrevButton.show();
+			} else {
+				this.pagingPrevButton.hide();
+			}
 		}
 		
-		if ( this.pagingSelectedPage < this.pagingMaxPages ) {
-			this.pagingNextButton.show();
-		} else {
-			this.pagingNextButton.hide();
+		if( this.pagingNextButton != null ) {
+			if ( this.pagingSelectedPage < this.pagingMaxPages ) {
+				this.pagingNextButton.show();
+			} else {
+				this.pagingNextButton.hide();
+			}			
 		}
 	},
 

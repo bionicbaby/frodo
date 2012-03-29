@@ -12286,7 +12286,7 @@ var ListContainer = Component.extend({
 			itemWidget = new renderer(new ConfigVO(this.contentID), item);
 			itemWidget.addEventListener(itemWidget.ITEM_SELECTED, this.onItemSelected, this);
 			itemWidget.addEventListener(itemWidget.REQUEST_REMOVE, this.onRequestRemove, this);
-			if(index !== undefined && index < this._items.lenth) {
+			if(index !== undefined && index < this._items.length) {
 				this._items.splice(index,0,itemWidget);
 			} else {
 				this._items.push(itemWidget);
@@ -12504,7 +12504,6 @@ var ListContainer = Component.extend({
 
 ListContainer.prototype.TYPE_PAGING = "paging";
 ListContainer.prototype.TYPE_SCROLL = "scroll";
-
 	
 	// scope jquery to the closure
 	var $ = window.jQuery.noConflict(true);	

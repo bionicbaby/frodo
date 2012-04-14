@@ -9,6 +9,7 @@ var VO = EventDispatcher.extend({
 	__type__: "VO",
 	name: "VO",
 	_dispatchInterval:null,
+	__renderClass__: null,
 	renderClass: null,
 	
 	//Events
@@ -70,10 +71,18 @@ var VO = EventDispatcher.extend({
 		}
 	},
 	
+	setRenderClass: function(renderClassName) {
+		this.__renderClass__ = renderClassName;
+		this.renderClass = eval(this.__renderClass__);
+	},
+	
 	getSerializableData: function () {
 		var temp = {};
 		if ( this["__type__"] !== undefined ) {
 			temp["__type__"] = this.__type__;
+		}
+		if (this["__renderClass__"] !== undefined ) {
+			temp["__renderClass__"] = this.__renderClass__;
 		}
 		return temp;
 	},
@@ -81,6 +90,21 @@ var VO = EventDispatcher.extend({
 	stringify:function() {
 		var temp = this.getSerializableData();
 		return JSON.stringify(temp);
+	},
+	
+	setSerializedData: function (data) {
+		for(var a in data) {
+			this[a] = data[a];
+		}
+		
+		if (this["__renderClass__"] !== undefined && this.__renderClass__ != null) {
+			this.setRenderClass(this.__renderClass__);
+		}
+	},
+	
+	destringify: function (stringData) {
+		var data = JSON.parse(stringData);
+		this.setSerializedData(data);	
 	},
 	
 	equals: function (object) {

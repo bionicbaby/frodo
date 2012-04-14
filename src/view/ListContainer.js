@@ -93,24 +93,22 @@ var ListContainer = Component.extend({
 
 	drawPagingControls: function () {
 		
-		this.$contentView.append("<div class='winston-listcontainer-prev winston-listcontainer-pagingcontrol'>"+this.pagingPrevLabel+"</div>");
-		this.pagingPrevButton = this.$view.find(".winston-listcontainer-prev");
-		
-		this.$contentView.append("<div class='winston-listcontainer-next winston-listcontainer-pagingcontrol'>"+this.pagingNextLabel+"</div>");
-		this.pagingNextButton = this.$view.find(".winston-listcontainer-next");
-		
-		
-		new ClickHandler(this, this.pagingPrevButton, this._onPagePrev );
-		new ClickHandler(this, this.pagingNextButton, this._onPageNext );
-		
-		// calculate max pages
-		this.pagingMaxPages = this.dataProvider.getLength() / this.pagingItemsPer;
-		
-		// if the page is 0 hide the prevLabel
-		if ( this.pagingSelectedPage == 1 ) {
-			this.pagingPrevButton.hide();
+		if(this.pagingPrevLabel != null && this.pagingPrevLabel.length > 0) {
+			this.$contentView.append("<div class='winston-listcontainer-prev winston-listcontainer-pagingcontrol'>"+this.pagingPrevLabel+"</div>");
+			this.pagingPrevButton = this.$view.find(".winston-listcontainer-prev");
+			new ClickHandler(this, this.pagingPrevButton, this._onPagePrev );
 		}
 		
+		if(this.pagingNextLabel != null && this.pagingNextLabel.length > 0) {
+			this.$contentView.append("<div class='winston-listcontainer-next winston-listcontainer-pagingcontrol'>"+this.pagingNextLabel+"</div>");
+			this.pagingNextButton = this.$view.find(".winston-listcontainer-next");
+			new ClickHandler(this, this.pagingNextButton, this._onPageNext );
+		}
+		
+		// calculate max pages
+		this.pagingMaxPages = Math.ceil(this.dataProvider.getLength() / this.pagingItemsPer);
+		
+		this.updatePageButtonVisibility();		
 	},
 	
 	focusPage: function () {
@@ -128,39 +126,40 @@ var ListContainer = Component.extend({
 	_onPagePrev: function () {
 
 		// decrement the selected page
-		this.pagingSelectedPage = this.pagingSelectedPage-1;
+		this.pagingSelectedPage = Math.max(1, this.pagingSelectedPage-1);
 		this.focusPage();
 		
-		// if we now have a need for a previous button?
-		if ( this.pagingSelectedPage < this.pagingMaxPages ) {
-			this.pagingNextButton.show();
-		}
-		
-		// if we have no more pages to go forward...
-		if ( this.pagingSelectedPage == 1 ) {
-			this.pagingPrevButton.hide();
-		}
-		
+		this.updatePageButtonVisibility();				
 	},
 	
 	_onPageNext: function () {
 		
 		// incrament the selected page
-		this.pagingSelectedPage = this.pagingSelectedPage+1;
+		this.pagingSelectedPage = Math.min(this.pagingMaxPages, this.pagingSelectedPage+1);
 		this.focusPage();
 		
-		// if we now have a need for a previous button?
-		if ( this.pagingSelectedPage > 0 ) {
-			this.pagingPrevButton.show();
-		}
-		
-		// if we have no more pages to go forward...
-		if ( this.pagingSelectedPage == this.pagingMaxPages ) {
-			this.pagingNextButton.hide();
-		}
-				
+		this.updatePageButtonVisibility();				
 	},
 	
+	updatePageButtonVisibility: function() {
+	
+		if( this.pagingPrevButton != null ) {
+			if ( this.pagingSelectedPage > 1 ) {
+				this.pagingPrevButton.show();
+			} else {
+				this.pagingPrevButton.hide();
+			}
+		}
+		
+		if( this.pagingNextButton != null ) {
+			if ( this.pagingSelectedPage < this.pagingMaxPages ) {
+				this.pagingNextButton.show();
+			} else {
+				this.pagingNextButton.hide();
+			}			
+		}
+	},
+
 	getPagingRange: function () {
 		var endRange = this.pagingSelectedPage * this.pagingItemsPer;
 		var startRange = endRange - this.pagingItemsPer;
@@ -218,7 +217,7 @@ var ListContainer = Component.extend({
 			//}
 		}
 		this.setSize(this.height, this.width);
-		
+		this.updatePageButtonVisibility();
 	},
 	
 	_processItem:function(item) {
@@ -289,7 +288,11 @@ var ListContainer = Component.extend({
 			itemWidget = new renderer(new ConfigVO(this.contentID), item);
 			itemWidget.addEventListener(itemWidget.ITEM_SELECTED, this.onItemSelected, this);
 			itemWidget.addEventListener(itemWidget.REQUEST_REMOVE, this.onRequestRemove, this);
-			this._items.push(itemWidget);
+			if(index !== undefined && index < this._items.length) {
+				this._items.splice(index,0,itemWidget);
+			} else {
+				this._items.push(itemWidget);
+			}
 		} catch ( e ) { 
 		}
 		
@@ -378,6 +381,10 @@ var ListContainer = Component.extend({
 			this.dataProvider = ac;
 			this.dataProvider.addEventListener(this.dataProvider.DATA_CHANGED, this._onDataChanged, this);
 			this._dataLength = this.dataProvider.getLength();
+
+			// calculate max pages
+			this.pagingMaxPages = Math.ceil(this.dataProvider.getLength() / this.pagingItemsPer);
+
 			//this.debug("resetting the fn redraw flag.");
 			this._redrawing = false;
 			this.redraw();
@@ -427,6 +434,11 @@ var ListContainer = Component.extend({
 				break;
 		}
 		this._dataLength = this.dataProvider.getLength();
+
+		// calculate max pages
+		this.pagingMaxPages = Math.ceil(this.dataProvider.getLength() / this.pagingItemsPer);
+		this.updatePageButtonVisibility();
+		this.focusPage();
 	},
 	
 	onItemSelected:function(event) {

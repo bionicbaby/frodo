@@ -17,7 +17,6 @@
 		<echo>Compiling frodo.js</echo>
 
 		<concat destfile="build/client/frodo.js" outputencoding="UTF-8">
-			<filelist dir="${basedir}/third-party/" files="jquery-1.7.1.js"/>
 			<filelist dir="${basedir}/src" files="_start.js"/>
 			<filelist dir="${basedir}/src/base/" files="Class.js"/>
 			<fileset dir="${basedir}/src/util/">
@@ -33,6 +32,12 @@
 			<filelist dir="${basedir}/src/data/" files="VO.js,SerializableVO.js,HashTable.js,Model.js,ArrayCollection.js,PersistentArrayCollection.js,Processor.js"/>
 			<filelist dir="${basedir}/src/view/" files="ConfigVO.js,DisplayObject.js,Component.js,ItemRenderer.js,ListContainer.js"/>
 			<filelist dir="${basedir}/src" files="_end.js"/>
+		</concat>
+		
+		<concat destfile="build/client/frodo.css">
+			<fileset dir="${basedir}/css">
+				 <include name="**/*.css"/>	
+			</fileset>
 		</concat>
 		
 	</target>

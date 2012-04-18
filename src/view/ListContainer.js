@@ -1,16 +1,16 @@
 
 var ListContainer = Component.extend({
 	
-	name:"UPListContainer",
+	name:"ListContainer",
 	//debugEnabled:true,
 	
 	dataProvider:null,//instance of ArrayCollection
 	_items:null,//list of our renderers
 	rendererClass:ItemRenderer,//reference to the renderer used for all items.
-	_containerClass:"winston-listcontainer-widget",
-	containerClass: "winston-listcontainer-widget",
-	_contentClass:"winston-listcontainer-list",
-	_backgroundClass:"winston-listcontainer",
+	_containerClass:"frodo-listcontainer",
+	containerClass: "frodo-listcontainer",
+	_contentClass:"frodo-listcontainer-list",
+	_backgroundClass:"frodo-listcontainer",
 	autoScroll:false,
 	showEmpty:false,
 	loadingTemplate:"<div>This list is empty.</div>",//we're using our loadingTemplate as our 'empty' display where needed.
@@ -33,12 +33,12 @@ var ListContainer = Component.extend({
 	TYPE_SCROLL: "scroll",
 	
 	//Events
-	ITEM_SELECTED:"winston.ui.listContainer.itemSelected",
-	ITEM_ADDED:"winston.ui.listContainer.itemAdded",
-	ITEM_REMOVED:"winston.ui.listContainer.itemRemoved",
-	ITEM_VIEWED:"winston.ui.listContainer.itemViewed",
-	PENDING_COUNT_CHANGE:"winston.ui.listContainer.pendingCountChange",
-	LIST_SCROLLING:"winston.ui.listContainer.listScrolling",
+	ITEM_SELECTED:"frodo.ui.listContainer.itemSelected",
+	ITEM_ADDED:"frodo.ui.listContainer.itemAdded",
+	ITEM_REMOVED:"frodo.ui.listContainer.itemRemoved",
+	ITEM_VIEWED:"frodo.ui.listContainer.itemViewed",
+	PENDING_COUNT_CHANGE:"frodo.ui.listContainer.pendingCountChange",
+	LIST_SCROLLING:"frodo.ui.listContainer.listScrolling",
 	
 	init:function(cfg, dp, itemRenderer, showEmpty) {
 		if (dp !== null && dp !== undefined ) { // TODO type check for Arraycollection
@@ -94,14 +94,14 @@ var ListContainer = Component.extend({
 	drawPagingControls: function () {
 		
 		if(this.pagingPrevLabel != null && this.pagingPrevLabel.length > 0) {
-			this.$contentView.append("<div class='winston-listcontainer-prev winston-listcontainer-pagingcontrol'>"+this.pagingPrevLabel+"</div>");
-			this.pagingPrevButton = this.$view.find(".winston-listcontainer-prev");
+			this.$contentView.append("<div class='frodo-listcontainer-prev frodo-listcontainer-pagingcontrol'>"+this.pagingPrevLabel+"</div>");
+			this.pagingPrevButton = this.$view.find(".frodo-listcontainer-prev");
 			new ClickHandler(this, this.pagingPrevButton, this._onPagePrev );
 		}
 		
 		if(this.pagingNextLabel != null && this.pagingNextLabel.length > 0) {
-			this.$contentView.append("<div class='winston-listcontainer-next winston-listcontainer-pagingcontrol'>"+this.pagingNextLabel+"</div>");
-			this.pagingNextButton = this.$view.find(".winston-listcontainer-next");
+			this.$contentView.append("<div class='frodo-listcontainer-next frodo-listcontainer-pagingcontrol'>"+this.pagingNextLabel+"</div>");
+			this.pagingNextButton = this.$view.find(".frodo-listcontainer-next");
 			new ClickHandler(this, this.pagingNextButton, this._onPageNext );
 		}
 		
@@ -112,14 +112,16 @@ var ListContainer = Component.extend({
 	},
 	
 	focusPage: function () {
-		// TODO: this is being done for a single item right now, we need to go back and make it work for 
-		// sets so we can animate the entire thing as a single container.
-		var selection = this.getPagingRange();
-		// hide everything first
-		this.hideAll();
-		for ( var i = selection.start ; i < selection.end ; i++ ) {
-			// looping over the selection items and displaying them
-			this.getItemAt(i).show();
+	    if ( this.type == this.TYPE_PAGING ) {
+    		// TODO: this is being done for a single item right now, we need to go back and make it work for 
+    		// sets so we can animate the entire thing as a single container.
+    		var selection = this.getPagingRange();
+    		// hide everything first
+    		this.hideAll();
+    		for ( var i = selection.start ; i < selection.end ; i++ ) {
+    			// looping over the selection items and displaying them
+    			this.getItemAt(i).show();
+    		}
 		}
 	},
 	

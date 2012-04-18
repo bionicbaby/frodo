@@ -65,7 +65,7 @@ var Framework = EventDispatcher.extend({
 		
 		// alias publically
 		scope.noConflicts = this.noConflicts;
-		window.winston = scope;
+		window.frodo = scope;
 		this.dispatchEvent(this.LOADED,{scope:scope});
 		
 	},
@@ -78,12 +78,12 @@ var Framework = EventDispatcher.extend({
 	},
 	
 	/**
-	 * @description Used to eliminate any potential conflicts with someone else using a different version of winston
+	 * @description Used to eliminate any potential conflicts with someone else using a different version of frodo
 	 */
 	noConflicts: function (remove) {
 		
 		if ( remove ) {
-			delete window.winston;
+			delete window.frodo;
 		}
 		
 		// send an alias back to the caller and then remove the alias on the window.

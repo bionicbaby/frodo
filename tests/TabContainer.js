@@ -1,0 +1,93 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title></title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width">
+  <link rel="stylesheet" href="/kitchen/deploy/frodo/build/client/frodo.css">
+  <script src="/kitchen/deploy/frodo/third-party/jquery-1.7.1.js"></script>
+  <script src="/kitchen/deploy/frodo/build/client/frodo.js"></script>
+</head>
+<body>
+  <header>
+
+  </header>
+  <div role="main" id="container" style="width:400px; height: 40px; border: 1px solid #ccc; position: relative;">
+
+  </div>
+  <footer>
+
+  </footer>
+  <script>
+	var com = {};
+	com.userplane = window.frodo.noConflicts();
+	console.log(com.userplane);
+	
+	var ListContainer = com.userplane.view.ListContainer;
+	var ArrayCollection = com.userplane.data.ArrayCollection;
+	var VO = com.userplane.data.VO;
+	var ItemRenderer = com.userplane.view.ItemRenderer;
+	var Component = com.userplane.view.Component;
+	
+	// sample VO for the test case
+	var SampleVO = VO.extend({
+		init: function(label) {
+			this.label = label;			
+		}
+	});
+	
+	// Sample Item Renderer
+	var TabItemRenderer = ItemRenderer.extend({
+		
+		viewTemplate: "<div class='tab-item-renderer'></div>",
+		
+		bindData: function() {
+			this.$view.html(this.data.label);
+		}
+	});
+	
+  	// Build a TabContainer class that we can work on dynamicly here in the test cae
+  	var TabContainer = Component.extend({
+  		
+  		name: "TabContainer",
+  		_visibleList: null,
+  		_overflowList: null,
+  		_dataProvider: null,
+  		_overflowButton: null,
+  		
+  		containerClass: "frodo-tab-container",
+  		
+  		init: function (config,dataProvider) {
+  			this._dataProvider = dataProvider;
+  			this._super(config);
+  		},
+  		
+  		draw: function() {
+  			this._super();
+  			this._visibleList = new ListContainer({containerId:this.contentID},data,TabItemRenderer);
+  			this._overflowList = new ListContainer({containerId:this.contentID},[],TabItemRenderer);
+  			this._overflowButton = "";
+  		}
+  		
+  	});
+  	
+	// new array collection for data container
+	var data = new ArrayCollection([]);
+	
+  	// adding some data to the AC.
+  	data.addItem(new SampleVO("tab1"));
+  	data.addItem(new SampleVO("tab2"));
+  	data.addItem(new SampleVO("tab3"));
+  	data.addItem(new SampleVO("tab4"));
+  	data.addItem(new SampleVO("tab5"));
+  	
+  	var tabs = new TabContainer({containerId:"container"},data);
+  	
+  </script>
+</body>
+</html>

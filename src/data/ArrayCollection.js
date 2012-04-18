@@ -19,15 +19,15 @@ var ArrayCollection = EventDispatcher.extend({
 	_sortInterval:null,
 	
 	//Events we dispatch
-	DATA_CHANGED: "winston.arrayCollection.dataChanged",
+	DATA_CHANGED: "frodo.arrayCollection.dataChanged",
 	
 	//sub-types for our events
-	ADD:"winston.arrayCollection.dataChanged.add",//indicates that an item (or items) have been added
-	REMOVE:"winston.arrayCollection.dataChanged.remove",//indicates that an item (or items) have been removed
-	REPLACE:"winston.arrayCollection.dataChanged.replace",//indicates an item has been replaced
-	UPDATE:"winston.arrayCollection.dataChanged.update",//indicates an item has been updated/changed
-	RESET:"winston.arrayCollection.dataChanged.reset",//indicates that so much has changed, that a complete reset is necessary
-	SORTED:"winston.arrayCollection.dataChanged.sorted",//indicates that the data has been sorted
+	ADD:"frodo.arrayCollection.dataChanged.add",//indicates that an item (or items) have been added
+	REMOVE:"frodo.arrayCollection.dataChanged.remove",//indicates that an item (or items) have been removed
+	REPLACE:"frodo.arrayCollection.dataChanged.replace",//indicates an item has been replaced
+	UPDATE:"frodo.arrayCollection.dataChanged.update",//indicates an item has been updated/changed
+	RESET:"frodo.arrayCollection.dataChanged.reset",//indicates that so much has changed, that a complete reset is necessary
+	SORTED:"frodo.arrayCollection.dataChanged.sorted",//indicates that the data has been sorted
 	
 	init:function(d) {
 		//need to check to make sure d is an array!

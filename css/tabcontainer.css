@@ -1,0 +1,5 @@
+.tab-item-renderer { float: left; width: 100px; height: 100%; }
+
+.frodo-tab-container .frodo-listcontainer-list { 
+	height: 100%;
+}

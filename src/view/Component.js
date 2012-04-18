@@ -29,20 +29,19 @@ var Component = DisplayObject.extend(/**@lends Component.prototype */{
 		loading:{}
 	},
 	
+	containerID : "frodo-component-container",
+	backgroundID : "frodo-component-background",
+	loadingID : "frodo-component-loading",
+	contentID : "frodo-component-content",
+	disconnectedID : "frodo-component-disconnected",
 	
-	containerID : "component-container",
-	backgroundID : "component-background",
-	loadingID : "component-loading",
-	contentID : "component-content",
-	disconnectedID : "component-disconnected",
-	
-	containerClass:"winston-component-container",//class name for our container
-	contentClass:"winston-component-content",//class name for our content
-	backgroundClass:"winston-component-background",//class name for our background
-	loadingClass:"winston-component-loading",//class name for our loading div
-	disconnectedClass:"winston-component-disconnected",//class name for our loading div
+	containerClass:"frodo-component-container",//class name for our container
+	contentClass:"frodo-component-content",//class name for our content
+	backgroundClass:"frodo-component-background",//class name for our background
+	loadingClass:"frodo-component-loading",//class name for our loading div
+	disconnectedClass:"frodo-component-disconnected",//class name for our loading div
 	viewClass:null,
-	hoverClass:"winston-component-hover",// class name that appears when hovering over component
+	hoverClass:"frodo-component-hover",// class name that appears when hovering over component
 	
 	showAnimation:null,
 	hideAnimation:null,
@@ -101,18 +100,18 @@ var Component = DisplayObject.extend(/**@lends Component.prototype */{
 				
 				// add rtl/ltr specific classes for the containers 
 				// add RTL identifier if necessary
-				this.$view.addClass("winston-"+this.getLocale().direction);
+				this.$view.addClass("frodo-"+this.getLocale().direction);
 				// add IE specific classes so we can style against it using a className 
 				if ( $.browser.msie ) {
-					this.$view.addClass("winston-msie");
+					this.$view.addClass("frodo-msie");
 						if ( $.browser.version == "7.0" ) {
-							this.$view.addClass("winston-msie-7");
+							this.$view.addClass("frodo-msie-7");
 						}
 						if ( $.browser.version == "8.0" ) {
-							this.$view.addClass("winston-msie-8");
+							this.$view.addClass("frodo-msie-8");
 						} 
 						if ($.browser.version == "9.0") {
-							this.$view.addClass("winston-msie-9");
+							this.$view.addClass("frodo-msie-9");
 						}
 				}
 				
@@ -168,7 +167,7 @@ var Component = DisplayObject.extend(/**@lends Component.prototype */{
 			$("#" + this.parentContainerID).append(this.$view);
 		}
 		
-		this.$view.addClass("winston-component");
+		this.$view.addClass("frodo-component");
 		// dispatch a display_component event so the plugins can listen for the rendering.
 		this.dispatchEvent( this.DISPLAY, {type: this.name, reference: this, eventType:"draw" }, false );
 	},

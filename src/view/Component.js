@@ -60,7 +60,9 @@ var Component = DisplayObject.extend(/**@lends Component.prototype */{
 	
 	//constructor
 	init: function (configVO) {
-		
+		// set a copy of the config into the class
+        this._config = configVO;
+        
 		if (configVO != undefined) {
 			this.parentContainerID = configVO.containerId;
 			

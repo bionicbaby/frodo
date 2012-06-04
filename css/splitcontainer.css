@@ -1,0 +1,15 @@
+.frodo-split-container.frodo-split-container-horizontal .frodo-split-container-primary, .frodo-split-container.frodo-split-container-horizontal .frodo-split-container-secondary {
+	width: 50%;
+	height: 100%;
+	background: red;
+	float: left;
+}
+
+.frodo-split-container.frodo-split-container-horizontal .frodo-split-container-control {
+	width: 5px; 
+	/* todo - remove temp styling */
+	background: #ccc;
+	height: 100%;
+	float: left;
+	curosr: e-resize;
+}

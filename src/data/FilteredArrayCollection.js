@@ -7,6 +7,7 @@ var FilteredArrayCollection = ArrayCollection.extend(/** @lends FilteredArrayCol
 	
 	name:"FilteredArrayCollection",
 	//debugEnabled:true,
+	
 	expression:true,//the expression to use in our default filterFunction
 	processing:false,//whether or not we're already processing...
 	filterFunction:function(item) {return true;},
@@ -14,9 +15,12 @@ var FilteredArrayCollection = ArrayCollection.extend(/** @lends FilteredArrayCol
 	
 	init:function(dp, filterMap) {
 		this.debug("created an FAC with data:", dp.data.slice(0));
+		//TODO: handle key! if supplied, pass to original ac and use here,
+		// OR should we not pass it here?
 		if(dp instanceof ArrayCollection) {
-			this._super(dp.data);
+			this._super([], dp._key);
 			this.dp = dp;
+			this._key = this.dp._key;
 			this.dp.addEventListener(dp.DATA_CHANGED, this._onTargetChange, this);
 		} else {
 			this.error("dataProvider supplied is not an ArrayCollection : ", arguments);
@@ -69,13 +73,18 @@ var FilteredArrayCollection = ArrayCollection.extend(/** @lends FilteredArrayCol
 						this.debug("nested objects not supported in filterMap");
 					}
 				}
-				//TODO: a bit of a hack, but the expression created above will end in &&..
-				this._expression +="true";
+				//JR: a bit of a hack, but the expression created above will end in &&..
+				this._expression +=" true";
 				this.debug("what's the expression?:", this._expression);
 				this.filterFunction = function(item) {
-					this.debug("testing item:", item);
-					if(eval(this._expression)){
-						return true;
+					if(item !== undefined) {
+					this.debug("testing item:", item, this._expression);
+						if(eval(this._expression)){
+							return true;
+						}
+					} else {
+						this.error(this, "item is undefined??", item);//item is undefined?
+						//console.trace();
 					}
 					return false;
 				}
@@ -86,14 +95,24 @@ var FilteredArrayCollection = ArrayCollection.extend(/** @lends FilteredArrayCol
 			//before changing the filterfunction..?
 		}
 		if(shouldFilter) {
+			//JR:
+			this.debug("SHOULD FILTER!", this.dp.data.length);
 			
 			// use a Processor instead of looping!
 			var _processItem = function(item) {
 				//this.debug("processing an item:", item);
-				if( item !== undefined && ! this.filterFunction(item)  ) {
-					this.removeItem(item);//a bit costly. it would be nice to get an index here as well and use removeItemAt
+				if( this.filterFunction(item)) {
+					this.debug("item passes filter. adding:", item);
+					this.addItem(item);
+				} else {
+					this.debug("item does NOT pass filter:", item);
+					//no need to remove here, since we're processing our target data, and not our own data.
 				}
 			};
+			for(var i=0; i<this.dp.data.length;i++) {
+				_processItem.call(this, this.dp.data[i]);
+			}
+			/*
 			var _onProcessingComplete = function(event) {
 				this.debug("done processing!", this.getLength());
 				this.processing = false;
@@ -101,74 +120,93 @@ var FilteredArrayCollection = ArrayCollection.extend(/** @lends FilteredArrayCol
 				p.removeEventListener(processor.COMPLETE, _onProcessingComplete, this );
 				p.destroy();
 			};
+			
 			if(this.dp.getLength() > 0) {
-				var processor = new Processor(this.data, _processItem, this);
+				
+				var processor = new Processor(this.dp.data, _processItem, this);
 				processor.addEventListener(processor.COMPLETE, _onProcessingComplete, this );
 				this.processing = true;
 				processor.run();
 			}
+			*/
 		}
 	},
 	
-	_onTargetChange:function(event) {
-		this.debug("got change:", event.context.type);
-		//if add, remove or update....
+	//Override setItemAt
+	setItemAt:function(item, index) {
+		this.debug("setItemAt called:", item, index);
+		this.data[index] = item;
 		
-		if(event.context.type == this.ADD) {
-			if(this.filterFunction(event.context.item)) {
-				this.addItem(event.context.item, true);
+		if(this._key !== null) {
+			this._table[item[this._key]] = index;
+		}
+		//original dispatches an UPDATE event here.
+	},
+	
+	//handle our target data changing
+	_onTargetChange:function(event) {
+		
+		//if add, remove or update....
+		var newItem = event.context.item;
+		var type = event.context.type;
+		var existingIndex = this.indexOf(newItem);
+		this.debug("got change:", event.context.type, "existing index:", existingIndex);
+		if(type == this.ADD) {
+			if(this.filterFunction(newItem) && existingIndex == -1) {
+				this.addItem(newItem);
 			}
-		} else if(event.context.type == this.REMOVE) {
-			this.removeItemAt(event.context.index);
-		} else if(event.context.type == this.UPDATE) {
-			this.debug("handling an update:", event.context);
-			if(this.filterFunction(event.context.item)) {
+		} else if(type == this.REMOVE) {
+			this.removeItemAt(existingIndex);
+		} else if(type == this.UPDATE) {
+			this.debug("handling an update:", newItem);
+			if(this.filterFunction(newItem)) {
 				//if we have this item we can update it, otherwise
 				// we should add it.
-				this.debug("update. item passes filter:", event.context);
-				if(this.contains(event.context.item)){
-					this.debug("item exists: updating", event.context, this.contains(event.context.item));
-					this.setItemAt(event.context.item, this.indexOf(event.context.item));
+				this.debug("update. item passes filter:", newItem);
+				if(existingIndex > -1){
+					this.debug("item exists: updating..", newItem === this.getItemAt(existingIndex));
+					if(newItem != this.getItemAt(existingIndex)) {
+						this.debug("new item does NOT match existing item. calling setItemAt");
+						this.setItemAt(newItem, existingIndex);
+					}
 					
 				} else {
-					this.debug("item does not exist: adding!", event.context, this.contains(event.context.item));
-					this.addItem(event.context.item);
+					this.debug("item does not exist: ADDING!", newItem);
+					this.addItem(newItem, true);
 				}
 			} else {
-				this.debug("item does NOT pass filter. removing", event.context);
-				this.removeItemAt(event.context.index);
-			}
-		} else if(event.context.type == this.SORTED) {
-			//we really shouldn't do anything if our original data is sorted.
-			/*
-			//if type == SORT.. copy the original's sort functions
-			//to our own and apply our own sort?
-			var len = this.getLength()-1;
-			for(var i=len;i>=0; i--) {
-				if( ! this.filterFunction(this.getItemAt(i))) {
-					this.removeItemAt(i);
+				this.debug("item does NOT pass filter. removing", newItem);
+				if(existingIndex>-1) {
+					this.removeItemAt(existingIndex);
+				} else{
+					this.removeItem(newItem);
 				} 
 			}
+		} else if(type == this.RESET) {
+			this.debug("HANDLING a reset.");
 			
-			//We also need to check to see if an item has changed that we need to add?
-			for(var a=0;a<this.dp.getLength();a++) {
-				if(this.filterFunction(this.dp.getItemAt(a))) {
-					this.addItem(this.dp.getItemAt(a), true);//add unique
-				}
+			
+			var len = this.dp.data.length;
+			
+			for(var i=len-1; i>0; i--) {
+				var item = this.dp.data[i];
+				//if(item !== undefined) {//this should never occur??
+					if(this.filterFunction(item)) {
+						this.addItem(item, true);
+					} else {
+						this.removeItem(item);
+					}
+				//}
 			}
 			
-			//this._sorts = this.dp._sorts;
-			this.doSort();
-			*/
-		} else if(event.context.type == this.RESET) {
-			this.debug("handling a reset.");
-			// use a Processor instead of looping!
+			/*
+			// use a Processor instead of looping! TODO: Modify processor to handle reverse processing..
 			var _processItem = function(item) {
 				//this.debug("processing an item:", item);
-				if( item !== undefined && ! this.filterFunction(item)  ) {
-					this.removeItem(item);//a bit costly. it would be nice to get an index here as well and use removeItemAt
-				} else {
+				if( this.filterFunction(item)  ) {
 					this.addItem(item);
+				} else {
+					this.removeItem(item);//a bit costly. it would be nice to get an index here as well and use removeItemAt
 				}
 			};
 			var _onProcessingComplete = function(event) {
@@ -183,10 +221,35 @@ var FilteredArrayCollection = ArrayCollection.extend(/** @lends FilteredArrayCol
 				processor.addEventListener(processor.COMPLETE, _onProcessingComplete, this );
 				this.processing = true;
 				processor.run();
+				
 			}
+			*/
 		}else {
-			this.error("handling unknown event type:", event.context);
+			this.error(this, "handling unknown event type:", event.context);
 		}
+	},
+	
+
+	_onItemChanged: function (event) {
+		//
+		this.debug("ITEM CHANGED IN FILTERED AC:", event);
+		//JR: filteredAC's need to know more about this type of update event... but what do we actually need to know?
+		if(this.filterFunction(event.context.data)) {
+			//this._dispatchChange(this.ADD, event.context.data, this.indexOf(event.context.data));
+			this.addItem(event.context.data, true);
+		} else {
+			//this._dispatchChange(this.REMOVE, event.context.data, this.indexOf(event.context.data));
+			this.removeItem(event.context.data);
+		}
+		//dispatch an update event?
+		this._dispatchChange(this.UPDATE);
+	},
+	
+	
+	clearFilter:function() {
+		//reset our expression, remove all of our data?
+		this._expression = true;
+		
 	},
 	
 	destroy:function() {

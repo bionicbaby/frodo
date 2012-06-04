@@ -1,0 +1,22 @@
+.frodo-button-container {
+	width:80px;
+	height:40px;
+	background-color:pink;
+	border: 1px solid #ccc;
+}
+
+.frodo-button-icon {
+	left:10px;
+	top:10px;
+	width:16px;
+	height:16px;
+	position:relative;
+}
+
+.frodo-button-label {
+	color:gray;
+	position:relative;
+	left:15px;
+	top:15px;
+		
+}

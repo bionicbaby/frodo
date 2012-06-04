@@ -100,7 +100,9 @@ var Component = DisplayObject.extend(/**@lends Component.prototype */{
 				
 				// add rtl/ltr specific classes for the containers 
 				// add RTL identifier if necessary
-				this.$view.addClass("frodo-"+this.getLocale().direction);
+				if(this.getLocale().direction !== undefined) {
+					this.$view.addClass("frodo-"+this.getLocale().direction);
+				}
 				// add IE specific classes so we can style against it using a className 
 				if ( $.browser.msie ) {
 					this.$view.addClass("frodo-msie");
@@ -127,21 +129,21 @@ var Component = DisplayObject.extend(/**@lends Component.prototype */{
 			if (this.backgroundTemplate) {
 				this.$bgView = $(this.backgroundTemplate);
 				//bg.addClass(this.backgroundClass);
-				this.$bgView.attr("id", this.backgroundID+"-"+uniqueId);
+				this.$bgView.attr("id", this.name+"-"+this.backgroundID+"-"+uniqueId);
 				this.$view.append(this.$bgView);
 			}
 			
 			if (this.loadingTemplate) {
 				this.$loadingView = $(this.loadingTemplate);
 				//this.$loadingView.addClass(this.loadingClass);
-				this.$loadingView.attr("id", this.loadingID+"-"+uniqueId);
+				this.$loadingView.attr("id", this.name+"-"+this.loadingID+"-"+uniqueId);
 				this.$bgView.append(this.$loadingView);
 			}
 			if (this.contentTemplate) {
 				
 				this.$contentView = $(this.contentTemplate);
 				//this.$contentView.addClass(this.contentClass);
-				this.contentID = this.contentID+"-"+uniqueId;
+				this.contentID = this.name+"-" + this.contentID+"-"+uniqueId;
 				this.$contentView.attr("id", this.contentID);
 				this.$bgView.append(this.$contentView);
 			}
@@ -149,7 +151,7 @@ var Component = DisplayObject.extend(/**@lends Component.prototype */{
 				
 				this.$disconnectedView = $(this.disconnectedTemplate);
 				this.$disconnectedView.addClass(this.disconnectedClass);
-				this.disconnectedID = this.disconnectedID+"-"+uniqueId;
+				this.disconnectedID = this.name+"-"+this.disconnectedID+"-"+uniqueId;
 				this.$disconnectedView.attr("id", this.disconnectedID);
 				this.$view.append(this.$disconnectedView);
 				this.$disconnectedView.hide();
@@ -220,6 +222,7 @@ var Component = DisplayObject.extend(/**@lends Component.prototype */{
 		this.$view.height(h);
 	},
 	
+	
 	resize:function() {
 		//this.debug("UPcomponent handling resize for:", this.name);
 	},
@@ -231,7 +234,7 @@ var Component = DisplayObject.extend(/**@lends Component.prototype */{
 		 * call addClass on our views to *hopefully* override
 		 * with what's in the css sheets
 		 */
-
+		//JR: this never worked and should be removed...
 		for(var v in this.styles) {
 			var view;
 			if(v == "container"){

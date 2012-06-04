@@ -7,8 +7,8 @@ var EventDispatcher = BaseClass.extend(/**@lends EventDispatcher.prototype */{
 	eventListeners:{},
 
 	/** @constructs **/
-	init:function( window, jQuery, Settings, undefined  ){
-		this._super( window, jQuery, Settings, undefined );
+	init:function(){
+		this._super();
 		this.eventListeners = {};
 		
 		// run GC every 15 seconds
@@ -50,7 +50,7 @@ var EventDispatcher = BaseClass.extend(/**@lends EventDispatcher.prototype */{
 			this.eventListeners[eventName] = l;
 		} else {
 			//this.debug( eventName, handler, obj );
-			throw "ERROR adding event listener for event:";
+			throw "ERROR adding event listener for event: " + eventName;
 			
 		}
 	},

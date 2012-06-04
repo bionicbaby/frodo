@@ -29,8 +29,12 @@
 			<filelist dir="${basedir}/src/event/command/" files="Command.js"/>
 			<filelist dir="${basedir}/src/" files="Framework.js"/>
 			<filelist dir="${basedir}/src/cache/" files="Cache.js,CookieCache.js,LocalStorageCache.js,SessionStorageCache.js,TemporaryCache.js,PersistentCache.js"/>
-			<filelist dir="${basedir}/src/data/" files="VO.js,SerializableVO.js,HashTable.js,Model.js,ArrayCollection.js,PersistentArrayCollection.js,Processor.js"/>
-			<filelist dir="${basedir}/src/view/" files="ConfigVO.js,DisplayObject.js,Component.js,ItemRenderer.js,ListContainer.js"/>
+			<filelist dir="${basedir}/src/data/vo/" files="VO.js,SerializableVO.js,ConfigVO.js,TabVO.js"/>
+						
+			<filelist dir="${basedir}/src/data/" files="HashTable.js,Model.js,ArrayCollection.js,PersistentArrayCollection.js,FilteredArrayCollection.js,Processor.js"/>
+			<filelist dir="${basedir}/src/view/" files="DisplayObject.js"/><!-- item renderers extend DisplayObject -->
+			<filelist dir="${basedir}/src/view/renderers/" files="ItemRenderer.js,VisibleTabRenderer.js,OverflowTabRenderer.js"/>
+			<filelist dir="${basedir}/src/view/" files="Component.js,Button.js,ListContainer.js,TabContainer.js"/>
 			<filelist dir="${basedir}/src" files="_end.js"/>
 		</concat>
 		

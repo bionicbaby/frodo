@@ -20,7 +20,7 @@ var ItemRenderer = DisplayObject.extend({
 		
 		this.bindEvents();
 		var t = this;
-		//setTimeout(function(){t.dispatchEvent(t.RENDERED, {item:t}, false);}, 25);
+		setTimeout(function(){t.dispatchEvent(t.RENDERED, {item:t}, false);}, 25);
 	},
 	
 	bindEvents:function() {
@@ -74,6 +74,10 @@ var ItemRenderer = DisplayObject.extend({
 	
 	_onMouseOut: function (event) {
 		this.$view.removeClass("up-item-hover");
+	},
+	
+	_onResize:function(event) {
+		
 	},
 	
 	destroy:function() {

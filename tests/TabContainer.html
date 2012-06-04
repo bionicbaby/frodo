@@ -9,84 +9,46 @@
   <title></title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width">
-  <link rel="stylesheet" href="/kitchen/deploy/frodo/build/client/frodo.css">
-  <script src="/kitchen/deploy/frodo/third-party/jquery-1.7.1.js"></script>
-  <script src="/kitchen/deploy/frodo/build/client/frodo.js"></script>
+  <link rel="stylesheet" href="../build/client/frodo.css">
+  <script src="../third-party/jquery-1.7.1.js"></script>
+  <script src="../build/client/frodo.js"></script>
 </head>
 <body>
   <header>
 
   </header>
-  <div role="main" id="container" style="width:400px; height: 40px; border: 1px solid #ccc; position: relative;">
+  <div role="main" id="container" style="width:90%; height: 600px; border: 1px solid #ccc; position: relative;">
 
   </div>
   <footer>
 
   </footer>
   <script>
+  
 	var com = {};
 	com.userplane = window.frodo.noConflicts();
-	console.log(com.userplane);
 	
-	var ListContainer = com.userplane.view.ListContainer;
-	var ArrayCollection = com.userplane.data.ArrayCollection;
-	var VO = com.userplane.data.VO;
-	var ItemRenderer = com.userplane.view.ItemRenderer;
-	var Component = com.userplane.view.Component;
+	//console.log(com.userplane);
 	
-	// sample VO for the test case
-	var SampleVO = VO.extend({
-		init: function(label) {
-			this.label = label;			
-		}
+	var TabContainer = com.userplane.view.TabContainer;
+	
+	//Sample child componenet
+	var SampleChild = com.userplane.view.Component.extend({
+		
+		name:"SampleChild",
+		debugEnabled:true,
+		
+		viewTemplate:"<div style='width:300px; height:400px; border:1px solid red;'>Hello! I'm a sample!<div>"
 	});
 	
-	// Sample Item Renderer
-	var TabItemRenderer = ItemRenderer.extend({
-		
-		viewTemplate: "<div class='tab-item-renderer'></div>",
-		
-		bindData: function() {
-			this.$view.html(this.data.label);
-		}
-	});
-	
-  	// Build a TabContainer class that we can work on dynamicly here in the test cae
-  	var TabContainer = Component.extend({
-  		
-  		name: "TabContainer",
-  		_visibleList: null,
-  		_overflowList: null,
-  		_dataProvider: null,
-  		_overflowButton: null,
-  		
-  		containerClass: "frodo-tab-container",
-  		
-  		init: function (config,dataProvider) {
-  			this._dataProvider = dataProvider;
-  			this._super(config);
-  		},
-  		
-  		draw: function() {
-  			this._super();
-  			this._visibleList = new ListContainer({containerId:this.contentID},data,TabItemRenderer);
-  			this._overflowList = new ListContainer({containerId:this.contentID},[],TabItemRenderer);
-  			this._overflowButton = "";
-  		}
-  		
-  	});
+	//Create the TabContainer
+  	var tabs = new TabContainer({containerId:"container", label:"myTabs"});
   	
-	// new array collection for data container
-	var data = new ArrayCollection([]);
-	
-  	// adding some data to the AC.
-  	data.addItem(new SampleVO("tab1"));
-  	data.addItem(new SampleVO("tab2"));
-  	data.addItem(new SampleVO("tab3"));
-  	data.addItem(new SampleVO("tab4"));
-  	data.addItem(new SampleVO("tab5"));
   	
-  	var tabs = new TabContainer({containerId:"container"},data);
+  	//add some tabs
+  	 // we only need to do this once, after we'll restore from cache
+  	//tabs.addTab("lobby", "SampleChild",{roomId:"lobby"});
+  	//tabs.addTab("lobby2", "SampleChild", {roomId:"lobby2"});
   	
   </script>
 </body>

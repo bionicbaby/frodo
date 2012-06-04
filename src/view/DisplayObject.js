@@ -13,15 +13,30 @@ var DisplayObject = EventDispatcher.extend(/**@lends DisplayObject.prototype */{
 	 * @description the css class to attach to the view. 
 	 */
 	viewClass:null,
+	/**@private
+	 * @description reference to our dom view elements.
+	 */
 	$view:null,
+	/**@private
+	 * @description the id attached to our view dom element.
+	 */
 	viewID:"",
+	
 	height:0,
 	width:0,
+	/**@public
+	 * @description whether or not our $view is visible.
+	 */
 	visible:true,
+	/**@public
+	 * @description reference to our 
+	 */
 	x:0,
 	y:0,
 	parentContainerID:null,
 	locale: {},
+	_parent:null,//reference to the object instance that created us
+	
 	/** @constructs */
 	init:function(configVO) {
 		
@@ -34,11 +49,20 @@ var DisplayObject = EventDispatcher.extend(/**@lends DisplayObject.prototype */{
 				this.debug("NO CONTAINERID, using 'body'", this);
 				this.parentContainerID = "body";
 			}
+			if(configVO.parent !== null && configVO.parent !== undefined) {
+				this._parent = parent;
+			} else {
+				this._parent = window;
+			}
+			if(configVO.label !== undefined && configVO.label !== null) {
+				this.label = configVO.label;
+			}
 		}	
 		this._super();
 		this.draw();
 		
 	},
+	
 	/** @private */
 	draw:function() {
 		
@@ -77,35 +101,10 @@ var DisplayObject = EventDispatcher.extend(/**@lends DisplayObject.prototype */{
 					this.$view.addClass("up-msie-9");
 				}
 			}
-			/* TODO: I thought this would be an easy way to find
-			 * the controller class instance through the browser
-			 * console but it didn't turn out as easy as I thought.
-			 */
-			/*
-			this.debug("storing a reference to our controller in data");
-			//store a reference to ourselves on our view?
-			this.$view.data("_controller", this);
-			this.debug("stored:", this.$view.data("_controller"));
-			*/
+			
 		}
 		
-		/*
-		if (this.$view !== null) {
-			if ($.browser.msie) {
-				this.$view.addClass("up-msie");
-				if ($.browser.version == "7.0") {
-					this.$view.addClass("up-msie-7");
-				}
-				if ($.browser.version == "8.0") {
-					this.$view.addClass("up-msie-8");
-				}
-			}
-		}
-		if (this.$view !== null) {
-			//store a reference to ourselves on our view?
-			this.$view.data("_controller", this);
-		}
-		*/
+		
 	},
 	/**
 	 * @function
@@ -181,6 +180,7 @@ var DisplayObject = EventDispatcher.extend(/**@lends DisplayObject.prototype */{
 		}
 		this._super();
 	},
+	
 	/**
 	 * @param {Object} locale the locale object to use.
 	 */
@@ -188,7 +188,7 @@ var DisplayObject = EventDispatcher.extend(/**@lends DisplayObject.prototype */{
 		this.locale = locale;
 	},
 	
-	/**
+	/**@public
 	 * @description
 	 * @returns {Object} the locale object.
 	 */
@@ -197,58 +197,13 @@ var DisplayObject = EventDispatcher.extend(/**@lends DisplayObject.prototype */{
 	},
 	
 	/**@public
-	 * @description add and removes status css classes to the given element, based on the status
-	 * of the user.
-	 * @param {UserVO} userVO
-	 * @param {Object} $element
+	 * @description sets a css style
+	 * @param {String} className
 	 */
-	
-	setStatus: function(userVO, $element) {
-		if (userVO !== null && typeof userVO != "undefined") {
-			$element.removeClass("up-status-blocked");
-			$element.removeClass("up-status-offline");
-			$element.removeClass("up-status-xa");
-			$element.removeClass("up-status-away");
-			$element.removeClass("up-status-dnd");
-			$element.removeClass("up-status-available");
-			$element.removeClass("up-status-chat");
-			$element.removeClass("up-status-pending");
-			
-			var blocked = rosterService.isBlocked(userVO.userID);
-			this.debug("Is user blocked?", userVO.userID, blocked );
-			
-			if ( userVO.online && !blocked ) { // && userVO.status !== "Offline"
-				$element.addClass("up-status-" + String(userVO.show).toLowerCase());
-			}
-			else if ( userVO.pending && !blocked ) {
-				$element.addClass("up-status-pending");
-			}
-			else if ( userVO.blocked || blocked ) {
-				$element.addClass("up-status-blocked");
-			}
-			else {
-				$element.addClass("up-status-offline");
-			}
+	setStyle:function(className) {
+		if(className !== undefined) {
+			this.$view.addClass(className);
 		}
-	},
-	
-	prettyDate: function(time){
-		var date = new Date((time || "").replace(/-/g,"/").replace(/[TZ]/g," ")),
-			diff = (((new Date()).getTime() - date.getTime()) / 1000),
-			day_diff = Math.floor(diff / 86400);
-				
-		if ( isNaN(day_diff) || day_diff < 0 || day_diff >= 31 )
-			return;
-				
-		return day_diff == 0 && (
-				diff < 60 && "just now" ||
-				diff < 120 && "1 minute ago" ||
-				diff < 3600 && Math.floor( diff / 60 ) + " minutes ago" ||
-				diff < 7200 && "1 hour ago" ||
-				diff < 86400 && Math.floor( diff / 3600 ) + " hours ago") ||
-			day_diff == 1 && "Yesterday" ||
-			day_diff < 7 && day_diff + " days ago" ||
-			day_diff < 31 && Math.ceil( day_diff / 7 ) + " weeks ago";
 	}
 	
  });

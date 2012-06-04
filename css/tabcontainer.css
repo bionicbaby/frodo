@@ -1,5 +1,39 @@
-.tab-item-renderer { float: left; width: 100px; height: 100%; }
-
-.frodo-tab-container .frodo-listcontainer-list { 
-	height: 100%;
+.frodo-tabcontainer-content {
+	width:100%;
 }
+
+.frodo-tabcontainer-background {
+	width:100%;
+}
+
+.frodo-tabcontainer-container {
+	width:100%;
+}
+
+/* overflow button */
+.frodo-tabcontainer-content .frodo-button-container {
+	
+}
+
+.frodo-tabcontainer-content .frodo-button-icon {
+	
+}
+
+.frodo-tabcontainer-content .frodo-button-label {
+	
+}
+
+/* visible list */
+
+/* visible items */
+.frodo-tabcontainer-content li {
+	float:left;
+}
+
+.frodo-tabcontainer-content .visible-tab-button {
+	
+}
+ 
+/* overflow list */
+
+/* overflow items */

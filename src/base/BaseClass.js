@@ -29,10 +29,17 @@
 
 		_log: null,
 		
+		/**
+		 * @public
+		 * @description instances can have a label.
+		 */
+		
+		label:"",
+		
 		/** 
-		 * @constructs 
+		 * @constructs
 		 **/
-		init:function( window, jQuery, Settings, undefined ) {
+		init:function() {
 			
 			this._renderTime = new Date().getTime();
 			this.instanceId = this.name+"_"+ this._renderTime;
@@ -63,7 +70,13 @@
 		 * @description provides an interface to the console.log function
 		 */
 		debug:function() {
-			this._log.debug(arguments);
+			if(this.debugEnabled ) {
+				if(this._log !== null) {
+					this._log.debug(arguments);
+				} else {
+					console.log(arguments);
+				}
+			}
 		},
 		
 		/**

@@ -24,8 +24,13 @@
 			HashTable: HashTable,
 			Model: Model,
 			PersistentArrayCollection: PersistentArrayCollection,
-			VO: VO,
-			SerializableVO: SerializableVO
+			FilteredArrayCollection:FilteredArrayCollection,
+			vo:{
+				VO: VO,
+				SerializableVO: SerializableVO,
+				TabVO:TabVO,
+				ConfigVO:ConfigVO
+			}
 		},
 		
 		/* View */
@@ -33,9 +38,16 @@
 			DisplayObject: DisplayObject,
 			Component: Component,
 			ListContainer: ListContainer,
-			ItemRenderer: ItemRenderer,
 			jQuery: $,
-			ConfigVO: ConfigVO
+			ConfigVO: ConfigVO,
+			Button: Button,
+			TabContainer:TabContainer,
+			
+			renderers:{
+				ItemRenderer:ItemRenderer,
+				OverflowTabRenderer:OverflowTabRenderer,
+				VisibleTabRenderer:VisibleTabRenderer
+			}
 		},
 		
 		/* Util */

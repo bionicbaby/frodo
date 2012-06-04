@@ -10,13 +10,27 @@ var SerializableVO = VO.extend({
 	name: "SerializableVO",
 	
 	getSerializableData: function () {
-		var temp = this._super();
+		var temp = {};
+		if ( this["__type__"] !== undefined ) {
+			temp["__type__"] = this.__type__;
+		}
 		return temp;
 	},
 			
 	stringify:function() {
 		var temp = this.getSerializableData();
 		return JSON.stringify(temp);
+	},
+	
+	setSerializedData: function (data) {
+		for(var a in data) {
+			this[a] = data[a];
+		}
+	},
+	
+	destringify: function (stringData) {
+		var data = JSON.parse(stringData);
+		this.setSerializedData(data);	
 	}
 		
 });

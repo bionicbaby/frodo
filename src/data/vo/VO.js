@@ -4,13 +4,16 @@
  * return this in stringify.
  */
 
+/**
+ * TODO: VO's should not extend EventDispatcher. They should simply hold data
+ * and be cache-able.
+ */
+
 var VO = EventDispatcher.extend({
 	
 	__type__: "VO",
 	name: "VO",
-	_dispatchInterval:null,
-	__renderClass__: null,
-	renderClass: null,
+	_id:null,
 	
 	//Events
 	CHANGED:"sdk.vo.changed",
@@ -19,14 +22,13 @@ var VO = EventDispatcher.extend({
 	
 	init: function () {
 		this._super();
-		this._dispatchInterval=null;
 	},
 	
 	get : function (key) {
 		return this[key];
 	},
 	
-	set: function (key,val) {
+	set: function (key, val) {
 		//this.debug("Setting VO property",key,val); 
 		var dirty = false;
 
@@ -71,19 +73,14 @@ var VO = EventDispatcher.extend({
 		}
 	},
 	
-	setRenderClass: function(renderClassName) {
-		this.__renderClass__ = renderClassName;
-		this.renderClass = eval(this.__renderClass__);
-	},
-	
+	/*//these should all be in SerializableVO, not here...
 	getSerializableData: function () {
+		console.log("VO.getSerializable??", this);
 		var temp = {};
 		if ( this["__type__"] !== undefined ) {
 			temp["__type__"] = this.__type__;
 		}
-		if (this["__renderClass__"] !== undefined ) {
-			temp["__renderClass__"] = this.__renderClass__;
-		}
+		
 		return temp;
 	},
 			
@@ -96,17 +93,13 @@ var VO = EventDispatcher.extend({
 		for(var a in data) {
 			this[a] = data[a];
 		}
-		
-		if (this["__renderClass__"] !== undefined && this.__renderClass__ != null) {
-			this.setRenderClass(this.__renderClass__);
-		}
 	},
 	
 	destringify: function (stringData) {
 		var data = JSON.parse(stringData);
 		this.setSerializedData(data);	
 	},
-	
+	*/
 	equals: function (object) {
 		return true;
 	},

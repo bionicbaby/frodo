@@ -4,90 +4,31 @@
  * return this in stringify.
  */
 
-var VO = EventDispatcher.extend({
-	
-	__type__: "VO",
-	name: "VO",
-	_dispatchInterval:null,
-	
-	//Events
-	CHANGED:"sdk.vo.changed",
-	
-	property: {},
-	
-	init: function () {
-		this._super();
-		this._dispatchInterval=null;
-	},
-	
-	get : function (key) {
-		return this[key];
-	},
-	
-	set: function (key,val) {
-		//this.debug("Setting VO property",key,val); 
-		var dirty = false;
+/**
+ * ConfigVO Class
+ * 
+ * @param {Object} width
+ * @param {Object} height
+ * @param {Object} containerId
+ * 
+ */
 
-		// dont update if the value is the same
-		if ( this[key] != val ) {
-			this[key] = val;
-			dirty = true;
-		}
-		
-		// dispatch changed event
-		if ( dirty ) {
-			this._dispatchEvent(this.CHANGED, 
-			{data:this, key:key, value:val}, 
-			false);
-		}
-	},
+ConfigVO = VO.extend({
+
+	width:"100%",
+	height:"100%",	
+	containerId:"body",
+	data:{},
+	parent:null,
 	
-	triggerChange: function() {
-		// dispatch changed event
-		this._dispatchEvent(this.CHANGED, 
-		{data:this, key:null, value:null}, 
-		false);
-	},
-	
-	setValues: function(object) {
-		// only call this if the change is indeed founded		
-		if ( this.equals(object) ) {
-			//TODO: extend causes really weird scope issues...
-			// I know Matt hates loops, but I'm gonna go out on a limb
-			// here and assume even tho this is a one line function call,
-			// that internally, it's looping like a mofo anyway, as well
-			// as doing some other wacky shit we don't need or want.
-			//$.extend( true, this, object );
-			for(var i in object) {
-			//if we find we're losing events down the line,
-			//  change this to this.set(i, object[i]);
-				this[i] = object[i];
-			}
-			this._dispatchEvent(this.CHANGED, {
-				data: this
-			}, false);
-		}
-	},
-	
-	getSerializableData: function () {
-		var temp = {};
-		if ( this["__type__"] !== undefined ) {
-			temp["__type__"] = this.__type__;
-		}
-		return temp;
-	},
-			
-	stringify:function() {
-		var temp = this.getSerializableData();
-		//this.debug("serializable data",temp);
-		return JSON.stringify(temp);
-	},
-	
-	equals: function (object) {
-		return true;
-	},
-	
-	_dispatchEvent:function() {
-		return this.dispatchEvent.apply(this,arguments);
+	init: function (width, height, containerId, data, parent) {
+		this._super();
+		this.set("width", width);
+		this.set("height", height);
+		this.set("containerId", containerId);
+		this.set("data", data);
+		this.set("parent", parent);
+		this._super();
 	}
+	
 });

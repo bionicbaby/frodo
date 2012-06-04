@@ -5,8 +5,9 @@
 	var PersistentCache = Cache.extend({
 		
 		name:"PersistentCache",
+		debugEnabled:true,
 		
-		init: function (cacheName,timeout,forceLocalStorage) {
+		init: function (cacheName, timeout, forceLocalStorage) {
 			
 			this.timeout = timeout;
 			this._super(cacheName,timeout);
@@ -14,14 +15,14 @@
 			// cleanup classes inherited properties
 			delete this.collection;
 			
-			if ( chrome === undefined ) {
+			//if ( chrome === undefined ) {//Safari cries about this not being available.
 				// Take advantage of local storage that is persistent
 				// between tabs on the same site and can store MBs of data
 				this.wrapper = new LocalStorageCache(this.cacheName);
 				
-			} else {
-				this.wrapper = new ChromeExtensionCache(this.cacheName);
-			}
+			//} else {
+			//	this.wrapper = new ChromeExtensionCache(this.cacheName);
+			//}
 			
 		},
 		

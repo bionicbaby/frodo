@@ -1,4 +1,7 @@
-
+/**
+ * TODO: Move fancy paging stuff to PagingListContainer.js
+ * 
+ */
 var ListContainer = Component.extend({
 	
 	name:"ListContainer",
@@ -18,19 +21,6 @@ var ListContainer = Component.extend({
 	pendingCount:0,
 	_dataLength:0,
 	_redrawing:false,
-	_drawingProcessor:null,//instance of Processor class
-	
-	type: "scroll",
-	pagingItemsPer: 10,
-	pagingNextLabel: null,
-	pagingPrevLabel: null,
-	pagingSelectedPage: 1,
-	pagingPrevButton: null,
-	pagingNextButton: null,
-	pagingMaxPages: 0,
-	
-	TYPE_PAGING: "paging",
-	TYPE_SCROLL: "scroll",
 	
 	//Events
 	ITEM_SELECTED:"frodo.ui.listContainer.itemSelected",
@@ -39,6 +29,7 @@ var ListContainer = Component.extend({
 	ITEM_VIEWED:"frodo.ui.listContainer.itemViewed",
 	PENDING_COUNT_CHANGE:"frodo.ui.listContainer.pendingCountChange",
 	LIST_SCROLLING:"frodo.ui.listContainer.listScrolling",
+	RESIZE:"frodo.ui.listContainer.resize",
 	
 	init:function(cfg, dp, itemRenderer, showEmpty) {
 		if (dp !== null && dp !== undefined ) { // TODO type check for Arraycollection
@@ -53,23 +44,13 @@ var ListContainer = Component.extend({
 		if ( itemRenderer !== null && typeof itemRenderer !== "undefined" ) {
 			this.rendererClass = itemRenderer;
 		}
-
-		if ( cfg.type !== undefined ) {
-			this.type = cfg.type;
-			if ( this.type == this.TYPE_PAGING ) {
-				this.pagingItemsPer = cfg.pagingItemsPer;
-				this.pagingPrevLabel = cfg.pagingPrevLabel;
-				this.pagingNextLabel = cfg.pagingNextLabel;
-			}	
-		} 
 		
 		if(showEmpty !== null && typeof showEmpty !== "undefined") {
 			this.showEmpty = showEmpty;
 		}
-		this.pendingCount = 0;
+
 		this._items = [];
 		this._redrawing = false;
-		this._drawingProcessor = null;
 		this._super(cfg);
 		
 	},
@@ -79,15 +60,11 @@ var ListContainer = Component.extend({
 		this.$bgView.addClass(this._backgroundClass);
 		this.$contentView.addClass(this._contentClass);
 		this.setSize(this.height, this.width);
-		
-		if ( this.type == this.TYPE_PAGING ) {
-			this.drawPagingControls();
-		}
-		
 	},
 	
 	bindEvents:function() {
 		//this._super();
+		$(window).bind("resize", $.proxy(this.onResize, this));
 		this.redraw();
 	},
 
@@ -185,7 +162,7 @@ var ListContainer = Component.extend({
 	redraw:function() {
 		
 		if( (this._items.length === this.dataProvider.getLength()) && this._items.length > 0) {
-			//this.debug("length is the same.. recycle??", "dp: "+this.dataProvider.getLength(), "items: "+this._items.length);
+			this.debug("length is the same.. recycle??", "dp: "+this.dataProvider.getLength(), "items: "+this._items.length);
 			this._recycle();
 			return;
 		}
@@ -201,69 +178,32 @@ var ListContainer = Component.extend({
 			//if(!this._redrawing) {
 				if(this.dataProvider.getLength() > 0) {
 					this._redrawing = true;
-					//this.debug("starting redraw. appending first item:", this.dataProvider.getItemAt(0));
-					//var item = this.appendItem(this.dataProvider.getItemAt(0));
-					//item.addEventListener(item.RENDERED, this._onItemRendered, this );
-					this.debug("starting a new process!",this._drawingProcessor);
-
-					if(this._drawingProcessor !== null) {
-						this.debug("stopping processor!");
-						//this._drawingProcessor.stop();
-					}
-					this._drawingProcessor = new Processor(this.dataProvider.toArray(), this._processItem, this);
-					this._drawingProcessor.addEventListener(this._drawingProcessor.COMPLETE, this._processComplete, this);
-					this._drawingProcessor.run();
+					this.debug("starting redraw. appending first item:", this.dataProvider.getItemAt(0));
+					var item = this.appendItem(this.dataProvider.getItemAt(0));
+					item.addEventListener(item.RENDERED, this._onItemRendered, this );
+					
 				}
 			//} else {
 			//	this.debug(this.name+" : redraw called while already redrawing. ignoring.");
 			//}
 		}
 		this.setSize(this.height, this.width);
-		this.updatePageButtonVisibility();
-	},
-	
-	_processItem:function(item) {
-		var renderClass = null;
-		// if there is a renderClass property on the VO that isnt null we should use it to render
-		if ( item.renderClass !== undefined && item.renderClass !== null ) {
-			renderClass = item.renderClass;
+		if(this.autoScroll) {
+			this.scrollToBottom();
 		}
-		this.appendItem(item,renderClass);
-	},
-	
-	_recycleItem:function(item) {
-		var index = this.dataProvider.indexOf(item);
-		this._items[index].setData(item);
-	},
-	
-	_processComplete:function(event) {
-		this.debug(this, "processor complete:", event.context.processor, this._drawingProcessor);
-		var p = event.context.processor;
-		p.removeEventListener(p.COMPLETE, this._processComplete, this);
-		p.destroy();
-		this._drawingProcessor = p = null;
+		this.updatePageButtonVisibility();//Moving!
 	},
 	
 	_recycle:function() {
 		this.debug("_recycle called:");
-		//loop through all item renderers (that are visible??) and reset their data appropriately?
-		//invisible items will get updated as they become visible, as long as we can get their index??
-		//var len = this.dataProvider.getLength();
-		//User Processor for this
-		if(this._drawingProcessor !== null) {
-			this._drawingProcessor.stop();
-		}
-		this._drawingProcessor = new Processor(this.dataProvider.toArray(), this._recycleItem, this);
-		this._drawingProcessor.addEventListener(this._drawingProcessor.COMPLETE, this._processComplete, this);
-		this._drawingProcessor.run();
-		/*
 		for(var i=0; i<this._items.length; i++) {
 			this._items[i].setData(this.dataProvider.getItemAt(i));
 		}
-		*/
+		if(this.autoScroll) {
+			this.scrollToBottom();
+		}
 	},
 	
-	//Deprecated?
 	_onItemRendered:function(event) {
 		var item = event.context.item;
 		item.removeEventListener(item.RENDERED, this._onItemRendered, this);
@@ -274,28 +214,29 @@ var ListContainer = Component.extend({
 		} else {
 			this._redrawing = false;
 		}
+		if(this.autoScroll) {
+			this.scrollToBottom();
+		}
 	},
 	
 	//TODO: index is un-used?
 	appendItem:function( item, renderer, index) {
+		this.debug("appending item", item);
 		var itemWidget = null;
 		
 		if(renderer===null || renderer === undefined) {
 			renderer = this.rendererClass;
-			//this.debug("Using default renderer:", this.rendererClass);
+			this.debug("Using default renderer:", this.rendererClass);
 		}
 			 
 		try {
-			
-			itemWidget = new renderer(new ConfigVO(this.contentID), item);
+			itemWidget = new renderer(new ConfigVO("100%", "100%", this.contentID), item);
 			itemWidget.addEventListener(itemWidget.ITEM_SELECTED, this.onItemSelected, this);
 			itemWidget.addEventListener(itemWidget.REQUEST_REMOVE, this.onRequestRemove, this);
-			if(index !== undefined && index < this._items.length) {
-				this._items.splice(index,0,itemWidget);
-			} else {
-				this._items.push(itemWidget);
-			}
+			this.addEventListener(this.RESIZE, itemWidget.onResize, itemWidget );
+			this._items.push(itemWidget);
 		} catch ( e ) { 
+			this.error("Error appending item in ListContainer:", this, e, itemWidget);
 		}
 		
 		
@@ -311,12 +252,13 @@ var ListContainer = Component.extend({
 	},
 	
 	removeAll:function()  {
-		//TODO: destroy our view first then restore?
-		//this.draw();//hmm...
-		for(var i=this._items.length -1; i>=0; i--) {
-			this.removeItem(this._items[i], i);
+		if(this._items !== null) {
+			for(var i=this._items.length -1; i>=0; i--) {
+				this.removeItemAt(i);
+			}
 		}
-		
+		this._items = [];
+		//
 	},
 
 	removeItemAt:function(index) {
@@ -324,6 +266,8 @@ var ListContainer = Component.extend({
 			this._items[index].removeEventListener(this._items[index].ITEM_SELECTED, this.onItemSelected, this);
 			this._items[index].removeEventListener(this._items[index].PENDING_COUNT_CHANGE, this.onPendingCountChange, this);
 			this._items[index].removeEventListener(this._items[index].REQUEST_REMOVE, this.onRequestRemove, this);
+			//TODO: remove resize listener.
+			this.removeEventListener(this.RESIZE, this._items[index].onResize, this._items[index]);
 			this.dispatchEvent(this.ITEM_REMOVED, {item:this._items[index]}, false);
 			this.debug("ABOUT TO DESTROY AN ITEM!", this._items[index]);
 			this._items[index].destroy();
@@ -337,7 +281,6 @@ var ListContainer = Component.extend({
 			return this._items[index];
 		}
 		return null;
-		
 	},
 	
 	removeItem:function(item, index) {
@@ -355,37 +298,24 @@ var ListContainer = Component.extend({
 	},
 	
 	updateItem:function(item, index) {
-		
-		//this.debug("what is at the index currently?", this._items[index]);
-		//try{
+		this.debug("updating an item:", item, index);
 		if(this._items[index] !== undefined) {
 			this._items[index].setData(item);// = item; // update the data with the new version
 		} else {
-			this.error(this, "attempted to update an item but cannot find it! adding it.", this._items[index], item, index);
-			console.trace();
-			//should we add it?//jr: this is why I'm seeing users stay in the roster list when they go offline...
-			this.appendItem(item);
+			this.error(this, "attempted to update an item but cannot find it! adding it.", this._items.slice(0), item, index);
 		}
-		//this._items[index].bindData(); // binddata so the ui can respond
-		//} catch(e) {
-		//	this.error("error in updateItem", e, item, index);
-		//}
 	},
 	
 	setDataProvider:function(ac) {
-		this.error(this,"LC setDataProvider called:", ac);
+		this.debug(this,"LC setDataProvider called:", ac);
 		if(ac !== undefined && ac !== null) { 
-			//if (!this.getSDK().MSIE) {
-				if (this.dataProvider !== null && this.dataProvider !== undefined) {
-					this.dataProvider.removeEventListener(this.dataProvider.DATA_CHANGED, this._onDataChanged, this);
-				}
-			//}
+
+			if (this.dataProvider !== null && this.dataProvider !== undefined) {
+				this.dataProvider.removeEventListener(this.dataProvider.DATA_CHANGED, this._onDataChanged, this);
+			}
 			this.dataProvider = ac;
 			this.dataProvider.addEventListener(this.dataProvider.DATA_CHANGED, this._onDataChanged, this);
 			this._dataLength = this.dataProvider.getLength();
-
-			// calculate max pages
-			this.pagingMaxPages = Math.ceil(this.dataProvider.getLength() / this.pagingItemsPer);
 
 			//this.debug("resetting the fn redraw flag.");
 			this._redrawing = false;
@@ -436,11 +366,6 @@ var ListContainer = Component.extend({
 				break;
 		}
 		this._dataLength = this.dataProvider.getLength();
-
-		// calculate max pages
-		this.pagingMaxPages = Math.ceil(this.dataProvider.getLength() / this.pagingItemsPer);
-		this.updatePageButtonVisibility();
-		this.focusPage();
 	},
 	
 	onItemSelected:function(event) {
@@ -479,32 +404,18 @@ var ListContainer = Component.extend({
 	},
 	
 	onSort:function() {
-		//JR: Suppress sorts that happen in rapid succession....
-		//...
-		//this.onReset();
 		this._recycle();
-		/*
-		this.debug("SORTING AN LC");
-
-		//loop through data provider
-		// AND items and call setData() on each
-		// item
-		this.debug("SORTING A LISTCONTAINER");
-		var len = this.dataProvider.getLength();
-		for(var i=0; i<len; i++) {
-			this.debug("setting data on item:", this._items[i], this.dataProvider.getItemAt(i));
-			this._items[i].setData(this.dataProvider.getItemAt(i));
-		}
-		*/
 	},
 
+	onResize:function(event) {
+		this.dispatchEvent(this.RESIZE, {container:this}, false);
+	},
+	
 	destroy:function() {
 		this.removeAll();
 		this.dataProvider.removeEventListener(this.dataProvider.DATA_CHANGED, this._onDataChanged, this);
+		$(window).unbind("resize", this.onResize);
 		this._super();
 	}
 	
 });
-
-ListContainer.prototype.TYPE_PAGING = "paging";
-ListContainer.prototype.TYPE_SCROLL = "scroll";
